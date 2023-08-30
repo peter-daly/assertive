@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "fluent_assertions"
+version = "0.0.1"
+description = "A small assertion library"
+authors = ["Peter Daly"]
+license = "MIT"
+homepage = "https://github.com/peter-daly/fluent_assertions"
+repository = "https://github.com/peter-daly/fluent_assertions"
+documentation = "https://github.com/peter-daly/fluent_assertions"
+readme = "README.md"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+]
+packages = [
+    { include = "fluent_assertions" },
+]
+include = ["CHANGES.rst"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0.0"
+pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.21.1"
+black = "^22.3.0"
+flakeheaven = "^3.2.1"
+isort = "^5.10.1"
+mkdocs-material = "^8.5.11"
+wily = "^1.24.0"
+mkdocstrings-python = "^0.8.3"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.coverage.paths]
+source = ["fluent_assertions", "*/site-packages"]
+tests = ["tests"]
+
+[tool.black]
+
+[tool.isort]
+profile = "black"
+
+[tool.flakeheaven]
+format = "grouped"
+show_source = true
+max_complexity = 10
+
+
+[tool.coverage.run]
+branch = true
+source = ["fluent_assertions", "tests"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
