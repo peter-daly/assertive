@@ -1,14 +1,14 @@
-from fluent_assertions.assertions import assert_that
-from fluent_assertions.criteria.basic import is_greater_than
-from fluent_assertions.criteria.string import regex
-from fluent_assertions.criteria.mapping import (
+from assertive.assertions import assert_that
+from assertive.criteria.basic import is_greater_than
+from assertive.criteria.string import regex
+from assertive.criteria.mapping import (
     contains_exact_keys,
     contains_keys,
     has_exact_key_values,
     has_key_and_value,
     has_key_values,
 )
-from fluent_assertions.criteria.exception import raises_exception
+from assertive.criteria.exception import raises_exception
 
 
 # type_failires

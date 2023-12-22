@@ -1,5 +1,5 @@
-from fluent_assertions.assertions import assert_that
-from fluent_assertions.criteria.numeric import (
+from assertive.assertions import assert_that
+from assertive.criteria.numeric import (
     as_absolute_matches,
     is_a_perfect_square,
     is_a_power_of,
@@ -15,7 +15,8 @@ from fluent_assertions.criteria.numeric import (
     approximatly_zero,
     is_a_factorial_of,
 )
-from fluent_assertions.criteria.exception import raises_exception
+from assertive.criteria.exception import raises_exception
+
 
 # is_multiple_of
 def test_is_multiple_of_matches_pass():

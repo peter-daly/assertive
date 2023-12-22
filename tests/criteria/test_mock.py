@@ -1,11 +1,11 @@
 # from __future__ import annotations
 from unittest.mock import Mock
-from fluent_assertions.assertions import assert_that
-from fluent_assertions.criteria import was_called_with, was_called
-from fluent_assertions.criteria.basic import is_greater_than, is_less_than
-from fluent_assertions.criteria.utils import ANY
-from fluent_assertions.criteria.exception import raises_exception
-from fluent_assertions.criteria.string import ends_with
+from assertive.assertions import assert_that
+from assertive.criteria import was_called_with, was_called
+from assertive.criteria.basic import is_greater_than, is_less_than
+from assertive.criteria.utils import ANY
+from assertive.criteria.exception import raises_exception
+from assertive.criteria.string import ends_with
 
 
 def test_mock_matches_passes():

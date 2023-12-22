@@ -1,6 +1,6 @@
 from typing import Any
-from fluent_assertions.assertions import Criteria, ensure_criteria
-from fluent_assertions.criteria.utils import WrappedCriteria, joined_keyed_descriptions
+from assertive.assertions import Criteria, ensure_criteria
+from assertive.criteria.utils import WrappedCriteria, joined_keyed_descriptions
 
 
 class has_attributes(Criteria):

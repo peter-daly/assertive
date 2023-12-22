@@ -1,12 +1,12 @@
-from fluent_assertions.assertions import assert_that
-from fluent_assertions.criteria.basic import is_less_than
-from fluent_assertions.criteria.string import (
+from assertive.assertions import assert_that
+from assertive.criteria.basic import is_less_than
+from assertive.criteria.string import (
     regex,
     ends_with,
     starts_with,
     contains_substring,
 )
-from fluent_assertions.criteria.exception import raises_exception
+from assertive.criteria.exception import raises_exception
 
 # type
 

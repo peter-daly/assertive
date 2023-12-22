@@ -1,14 +1,14 @@
 from dataclasses import dataclass
-from fluent_assertions.assertions import assert_that
-from fluent_assertions.criteria.basic import is_greater_than
-from fluent_assertions.criteria.string import regex
-from fluent_assertions.criteria.object import (
+from assertive.assertions import assert_that
+from assertive.criteria.basic import is_greater_than
+from assertive.criteria.string import regex
+from assertive.criteria.object import (
     class_match,
     has_attributes,
     is_type,
     is_exact_type,
 )
-from fluent_assertions.criteria.exception import raises_exception
+from assertive.criteria.exception import raises_exception
 
 
 @dataclass(kw_only=True)

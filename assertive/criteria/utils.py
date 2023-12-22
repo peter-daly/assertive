@@ -1,6 +1,6 @@
 from typing import Any, Callable, Iterable, Mapping, Union
 
-from fluent_assertions.assertions import Criteria, ensure_criteria
+from assertive.assertions import Criteria, ensure_criteria
 from .basic import is_greater_than_or_equal
 
 

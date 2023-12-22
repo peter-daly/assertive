@@ -1,7 +1,7 @@
 from unittest.mock import Mock
-from fluent_assertions.assertions import Criteria, ensure_criteria
+from assertive.assertions import Criteria, ensure_criteria
 
-from fluent_assertions.criteria.utils import (
+from assertive.criteria.utils import (
     TimesMixin,
     joined_descriptions,
     joined_keyed_descriptions,

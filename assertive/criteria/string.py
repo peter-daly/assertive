@@ -1,6 +1,6 @@
 import re
-from fluent_assertions.assertions import Criteria
-from fluent_assertions.criteria.utils import TimesMixin
+from assertive.assertions import Criteria
+from assertive.criteria.utils import TimesMixin
 
 
 class StringCriteria(Criteria):

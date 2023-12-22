@@ -1,5 +1,5 @@
 from typing import Union
-from fluent_assertions.assertions import (
+from assertive.assertions import (
     Criteria,
     ensure_criteria,
     _default_ensured_criteria,

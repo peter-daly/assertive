@@ -1,5 +1,5 @@
 from typing import Union
-from fluent_assertions.assertions import Criteria, ensure_criteria
+from assertive.assertions import Criteria, ensure_criteria
 
 
 class is_multiple_of(Criteria):

@@ -1,7 +1,7 @@
 from typing import Union
-from fluent_assertions.assertions import Criteria, ensure_criteria
+from assertive.assertions import Criteria, ensure_criteria
 
-from fluent_assertions.criteria.utils import (
+from assertive.criteria.utils import (
     joined_descriptions,
 )
 

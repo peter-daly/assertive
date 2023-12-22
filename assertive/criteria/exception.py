@@ -1,9 +1,9 @@
 from types import TracebackType
 from typing import Callable, Optional, Union
-from fluent_assertions.assertions import Criteria, assert_that, ensure_criteria
-from fluent_assertions.criteria.basic import as_string_matches
-from fluent_assertions.criteria.object import is_type, is_exact_type
-from fluent_assertions.criteria.utils import ANY
+from assertive.assertions import Criteria, assert_that, ensure_criteria
+from assertive.criteria.basic import as_string_matches
+from assertive.criteria.object import is_type, is_exact_type
+from assertive.criteria.utils import ANY
 
 
 class ExceptionCriteria(Criteria):
