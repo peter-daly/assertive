@@ -30,7 +30,7 @@ class Assertion:
         self.matches(other)
         return self
 
-    def __ne__(self, other):
+    def __neq__(self, other):
         self.does_not_match(other)
         return self
 
@@ -110,6 +110,12 @@ class Criteria(ABC):
     def __invert__(self):
         return _NegatedCriteria(self)
 
+    def __eq__(self, other):
+        return self.run_match(other)
+
+    def __neq__(self, other):
+        return self.run_negated_match(other)
+
 
 class _AndCriteria(Criteria):
     def __init__(self, left: Criteria, right: Criteria):
@@ -179,4 +185,4 @@ class _default_ensured_criteria(Criteria):
 
     @property
     def description(self) -> str:
-        return f"== {self.expected}"
+        return str(self.expected)

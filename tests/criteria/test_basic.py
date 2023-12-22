@@ -1,5 +1,5 @@
-from fluent_assertions.assertions import assert_that
-from fluent_assertions.criteria.basic import (
+from assertive.assertions import assert_that
+from assertive.criteria.basic import (
     as_string_matches,
     is_between,
     is_equal_to,
@@ -8,10 +8,13 @@ from fluent_assertions.criteria.basic import (
     is_less_than,
     is_less_than_or_equal,
     is_false,
+    is_none,
+    is_not_none,
     is_same_instance_as,
     is_true,
 )
-from fluent_assertions.criteria.exception import raises_exception
+from assertive.criteria.exception import raises_exception
+
 
 # is_equal
 def test_is_equal_to_matches_pass():
@@ -23,12 +26,12 @@ def test_is_equal_to_does_not_match_pass():
 
 
 def test_is_equal_to_matches_fail():
-    with raises_exception(AssertionError, "Expected 1 to match: == 2"):
+    with raises_exception(AssertionError, "Expected 1 to match: 2"):
         assert_that(1).matches(is_equal_to(2))
 
 
 def test_is_equal_to_does_not_match_fail():
-    with raises_exception(AssertionError, "Expected 1 to not match: == 1"):
+    with raises_exception(AssertionError, "Expected 1 to not match: 1"):
         assert_that(1).does_not_match(is_equal_to(1))
 
 
@@ -217,20 +220,58 @@ def test_is_same_instance_as_does_not_match_fail():
 
 
 # as_string_matches
-def test_as_string_as_matches_matches_pass():
+def test_as_string_matches_matches_pass():
     assert_that(4).matches(as_string_matches(is_equal_to("4")))
     assert_that(4).matches(as_string_matches("4"))
 
 
-def test_as_string_as_matches_does_not_match_pass():
+def test_as_string_matches_does_not_match_pass():
     assert_that(4).does_not_match(as_string_matches("hello"))
 
 
-def test_as_string_as_matches_matches_fail():
-    with raises_exception(AssertionError, "Expected str(3) to match: == 4"):
+def test_as_string_matches_matches_fail():
+    with raises_exception(AssertionError, "Expected str(3) to match: 4"):
         assert_that(3).matches(as_string_matches("4"))
 
 
-def test_as_string_as_matches_not_match_fail():
-    with raises_exception(AssertionError, "Expected str(3) to not match: == 3"):
+def test_as_string_matches_not_match_fail():
+    with raises_exception(AssertionError, "Expected str(3) to not match: 3"):
         assert_that(3).does_not_match(as_string_matches("3"))
+
+
+# is_none
+def test_is_none_matches_pass():
+    assert_that(None).matches(is_none())
+
+
+def test_is_none_matches_does_not_match_pass():
+    assert_that("hello").does_not_match(is_none())
+
+
+def test_is_none_as_matches_matches_fail():
+    with raises_exception(AssertionError, "Expected 3 to match: is None"):
+        assert_that(3).matches(is_none())
+
+
+def test_is_none_as_matches_not_match_fail():
+    with raises_exception(AssertionError, "Expected None to not match: is None"):
+        assert_that(None).does_not_match(is_none())
+
+
+# is_not_none
+def test_is_not_none_matches_pass():
+    assert_that("None").matches(is_not_none())
+
+
+def test_is_not_none_matches_does_not_match_pass():
+    assert_that(None).does_not_match(is_not_none())
+
+
+def test_is_not_none_as_matches_matches_fail():
+    with raises_exception(AssertionError, "Expected None to match: is not None"):
+        assert_that(None).matches(is_not_none())
+
+
+def test_is_not_none_as_matches_not_match_fail():
+    with raises_exception(AssertionError, "Expected 3 to not match: is not None"):
+        assert_that(3).does_not_match(is_not_none())

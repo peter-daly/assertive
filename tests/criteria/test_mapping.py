@@ -32,7 +32,7 @@ def test_has_key_values_does_not_match_pass():
 
 def test_has_key_values_matches_fail():
     with raises_exception(
-        AssertionError, "Expected {'x': 1, 'y': 2} to match: has key values: {x:> 1}"
+        AssertionError, "Expected {'x': 1, 'y': 2} to match: has key values: {x: > 1}"
     ):
         assert_that({"x": 1, "y": 2}).matches(has_key_values({"x": is_greater_than(1)}))
 
@@ -40,7 +40,7 @@ def test_has_key_values_matches_fail():
 def test_has_key_values_does_not_match_fail():
     with raises_exception(
         AssertionError,
-        "Expected {'x': 1, 'y': 2} to not match: has key values: {y:> 1}",
+        "Expected {'x': 1, 'y': 2} to not match: has key values: {y: > 1}",
     ):
         assert_that({"x": 1, "y": 2}).does_not_match(
             has_key_values({"y": is_greater_than(1)})
@@ -62,7 +62,7 @@ def test_has_key_and_value_does_not_match_pass():
 
 def test_has_key_and_value_matches_fail():
     with raises_exception(
-        AssertionError, "Expected {'x': 1, 'y': 2} to match: has key values: {x:> 1}"
+        AssertionError, "Expected {'x': 1, 'y': 2} to match: has key values: {x: > 1}"
     ):
         assert_that({"x": 1, "y": 2}).matches(
             has_key_and_value("x", is_greater_than(1))
@@ -72,7 +72,7 @@ def test_has_key_and_value_matches_fail():
 def test_has_key_and_value_does_not_match_fail():
     with raises_exception(
         AssertionError,
-        "Expected {'x': 1, 'y': 2} to not match: has key values: {y:> 1}",
+        "Expected {'x': 1, 'y': 2} to not match: has key values: {y: > 1}",
     ):
         assert_that({"x": 1, "y": 2}).does_not_match(
             has_key_and_value("y", is_greater_than(1))
@@ -99,7 +99,7 @@ def test_has_exact_key_values_does_not_match_pass():
 def test_has_exact_key_values_matches_fail():
     with raises_exception(
         AssertionError,
-        "Expected {'x': 1, 'y': 2} to match: has exact key values: {x:> 1}",
+        "Expected {'x': 1, 'y': 2} to match: has exact key values: {x: > 1}",
     ):
         assert_that({"x": 1, "y": 2}).matches(
             has_exact_key_values({"x": is_greater_than(1)})
@@ -109,7 +109,7 @@ def test_has_exact_key_values_matches_fail():
 def test_has_exact_key_values_does_not_match_fail():
     with raises_exception(
         AssertionError,
-        "Expected {'x': 1, 'y': 2} to not match: has exact key values: {x:== 1,y:> 1}",
+        "Expected {'x': 1, 'y': 2} to not match: has exact key values: {x: 1, y: > 1}",
     ):
         assert_that({"x": 1, "y": 2}).does_not_match(
             has_exact_key_values({"x": 1, "y": is_greater_than(1)})
@@ -165,7 +165,7 @@ def test_contains_exact_keys_matches_fail():
 def test_contains_exact_keys_does_not_match_fail():
     with raises_exception(
         AssertionError,
-        "Expected {'x': 1, 'y': 2} to not match: to have exact keys matching: [regex pattern 'x|y|z',== x]",
+        "Expected {'x': 1, 'y': 2} to not match: to have exact keys matching: [regex pattern 'x|y|z', x]",
     ):
         assert_that({"x": 1, "y": 2}).does_not_match(
             contains_exact_keys(regex(r"x|y|z"), "x")

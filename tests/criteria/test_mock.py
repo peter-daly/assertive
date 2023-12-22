@@ -55,7 +55,7 @@ def test_mock_matches_fails():
     with raises_exception(
         AssertionError,
         ends_with(
-            "to match: to be called with args=(== 5,== 6), kwargs=() and call count should match >= 1"
+            "to match: to be called with args=(5, 6), kwargs=() and call count should match >= 1"
         ),
     ):
         assert_that(mock1).matches(was_called_with(5, 6))
@@ -69,7 +69,7 @@ def test_mock_does_not_match_matches_fails():
     with raises_exception(
         AssertionError,
         ends_with(
-            "to not match: to be called with args=(== 1,== 2), kwargs=() and call count should match >= 1"
+            "to not match: to be called with args=(1, 2), kwargs=() and call count should match >= 1"
         ),
     ):
         assert_that(mock1).does_not_match(was_called_with(1, 2))

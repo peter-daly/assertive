@@ -46,6 +46,8 @@ def test_is_even_matches_pass():
     assert_that(0).matches(is_even())
     assert_that(-2).matches(is_even())
 
+    assert 2 == ~is_odd()
+
 
 def test_is_even_does_not_match_pass():
     assert_that(1).does_not_match(is_even())
@@ -368,6 +370,6 @@ def test_as_absolute_matches_fail():
 def test_as_absolute_does_not_match_fail():
     with raises_exception(
         AssertionError,
-        "Expected abs(-6) to not match: == 6",
+        "Expected abs(-6) to not match: 6",
     ):
         assert_that(-6).does_not_match(as_absolute_matches(6))

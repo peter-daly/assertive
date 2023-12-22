@@ -115,7 +115,7 @@ def test_contains_substring_matches_fail():
 
     with raises_exception(
         AssertionError,
-        "Expected 'hello hello' to match: contains 'hello' with number of times matching: == 1",
+        "Expected 'hello hello' to match: contains 'hello' with number of times matching: 1",
     ):
         assert_that("hello hello").matches(contains_substring("hello").once)
 
@@ -123,6 +123,6 @@ def test_contains_substring_matches_fail():
 def test_contains_substring_does_not_match_fail():
     with raises_exception(
         AssertionError,
-        "Expected 'abc' to not match: contains 'c' with number of times matching: == 1",
+        "Expected 'abc' to not match: contains 'c' with number of times matching: 1",
     ):
         assert_that("abc").does_not_match(contains_substring("c").once)

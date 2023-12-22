@@ -3,6 +3,7 @@ from fluent_assertions.assertions import assert_that
 from fluent_assertions.criteria.basic import is_greater_than
 from fluent_assertions.criteria.string import regex
 from fluent_assertions.criteria.object import (
+    class_match,
     has_attributes,
     is_type,
     is_exact_type,
@@ -37,7 +38,7 @@ def test_has_attributes_does_not_match_pass():
 def test_has_attributes_matches_fail():
     with raises_exception(
         AssertionError,
-        "Expected Parent(x='1', y=2) to match: has attributes (x:== hello)",
+        "Expected Parent(x='1', y=2) to match: has attributes (x: hello)",
     ):
         assert_that(Parent(x="1", y=2)).matches(has_attributes(x="hello"))
 
@@ -45,7 +46,7 @@ def test_has_attributes_matches_fail():
 def test_has_attributes_does_not_match_fail():
     with raises_exception(
         AssertionError,
-        "Expected Parent(x='1', y=2) to not match: has attributes (y:== 2)",
+        "Expected Parent(x='1', y=2) to not match: has attributes (y: 2)",
     ):
         assert_that(Parent(x="1", y=2)).does_not_match(has_attributes(y=2))
 
@@ -106,3 +107,35 @@ def test_is_exact_type_does_not_match_fail():
         "Expected 123 to not match: is of type <class 'str'>",
     ):
         assert_that("123").does_not_match(is_exact_type(str))
+
+
+# class_match
+def test_class_match_matches_pass():
+    instance = Child(x="1", y=2, z=1.2)
+
+    assert_that(instance).matches(class_match(Child, z=1.2))
+    assert_that(instance).matches(class_match(Parent, y=2))
+
+    assert instance == class_match(Child, z=1.2)
+    assert instance == class_match(Parent, y=2)
+
+
+# def test_is_exact_type_does_not_match_pass():
+#     assert_that("123").does_not_match(is_exact_type(int))
+#     assert_that(Child(x="1", y=2, z=1.2)).does_not_match(is_exact_type(Parent))
+
+
+# def test_is_exact_type_matches_fail():
+#     with raises_exception(
+#         AssertionError,
+#         "Expected 123 to match: is of type <class 'int'>",
+#     ):
+#         assert_that("123").matches(is_exact_type(int))
+
+
+# def test_is_exact_type_does_not_match_fail():
+#     with raises_exception(
+#         AssertionError,
+#         "Expected 123 to not match: is of type <class 'str'>",
+#     ):
+#         assert_that("123").does_not_match(is_exact_type(str))

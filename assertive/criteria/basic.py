@@ -1,17 +1,13 @@
 from typing import Union
-from fluent_assertions.assertions import Criteria, ensure_criteria
+from fluent_assertions.assertions import (
+    Criteria,
+    ensure_criteria,
+    _default_ensured_criteria,
+)
 
 
-class is_equal_to(Criteria):
-    def __init__(self, expected):
-        self.expected = expected
-
-    def _match(self, subject) -> bool:
-        return subject == self.expected
-
-    @property
-    def description(self) -> str:
-        return f"== {self.expected}"
+class is_equal_to(_default_ensured_criteria):
+    pass
 
 
 class is_greater_than(Criteria):
@@ -137,3 +133,25 @@ class as_string_matches(Criteria):
 
     def negated_failure_message(self, subject) -> str:
         return f"Expected str({subject}) to not match: {self.description}"
+
+
+class is_none(Criteria):
+    """When the subject called with the str the subject matches the criteria"""
+
+    def _match(self, subject) -> bool:
+        return subject is None
+
+    @property
+    def description(self) -> str:
+        return "is None"
+
+
+class is_not_none(Criteria):
+    """When the subject called with the str the subject matches the criteria"""
+
+    def _match(self, subject) -> bool:
+        return subject is not None
+
+    @property
+    def description(self) -> str:
+        return "is not None"

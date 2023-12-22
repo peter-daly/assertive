@@ -30,14 +30,14 @@ def test_has_length_does_not_match_pass():
 
 def test_has_length_matches_fail():
     with raises_exception(
-        AssertionError, "Expected [1, 2, 3] to match: has length matching: == 4"
+        AssertionError, "Expected [1, 2, 3] to match: has length matching: 4"
     ):
         assert_that([1, 2, 3]).matches(has_length(4))
 
 
 def test_has_length_does_not_match_fail():
     with raises_exception(
-        AssertionError, "Expected [1, 2, 3] to not match: has length matching: == 3"
+        AssertionError, "Expected [1, 2, 3] to not match: has length matching: 3"
     ):
         assert_that([1, 2, 3]).does_not_match(has_length(3))
 
@@ -80,7 +80,7 @@ def test_contains_does_not_match_pass():
 
 def test_contains_matches_fail():
     with raises_exception(
-        AssertionError, "Expected [1, 2, 3] to match: contains [== 1,== 2,== 4]"
+        AssertionError, "Expected [1, 2, 3] to match: contains [1, 2, 4]"
     ):
         assert_that([1, 2, 3]).matches(contains(1, 2, 4))
 
@@ -110,7 +110,7 @@ def test_contains_exactly_does_not_match_pass():
 def test_contains_exactly_matches_fail():
     with raises_exception(
         AssertionError,
-        "Expected [1, 2, 3] to match: contains exactly [== 1,== 2,== 3,== 4]",
+        "Expected [1, 2, 3] to match: contains exactly [1, 2, 3, 4]",
     ):
         assert_that([1, 2, 3]).matches(contains_exactly(1, 2, 3, 4))
 
@@ -118,7 +118,7 @@ def test_contains_exactly_matches_fail():
 def test_contains_exactly_does_not_match_fail():
     with raises_exception(
         AssertionError,
-        "Expected [1, 2, 3] to not match: contains exactly [> 0,== 2,== 3]",
+        "Expected [1, 2, 3] to not match: contains exactly [> 0, 2, 3]",
     ):
         assert_that([1, 2, 3]).does_not_match(
             contains_exactly(is_greater_than(0), 2, 3)

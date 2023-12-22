@@ -1,6 +1,6 @@
 from typing import Any
 from fluent_assertions.assertions import Criteria, ensure_criteria
-from fluent_assertions.criteria.utils import joined_keyed_descriptions
+from fluent_assertions.criteria.utils import WrappedCriteria, joined_keyed_descriptions
 
 
 class has_attributes(Criteria):
@@ -60,3 +60,13 @@ class is_exact_type(Criteria):
     @property
     def description(self) -> str:
         return f"is of type {self.expected}"
+
+
+class class_match(WrappedCriteria):
+    def __init__(self, cls: type, **attributes):
+        super().__init__(is_type(cls) & has_attributes(**attributes))
+
+
+class strict_class_match(WrappedCriteria):
+    def __init__(self, cls: type, **attributes):
+        super().__init__(is_exact_type(cls) & has_attributes(**attributes))

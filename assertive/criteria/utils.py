@@ -4,12 +4,12 @@ from fluent_assertions.assertions import Criteria, ensure_criteria
 from .basic import is_greater_than_or_equal
 
 
-def joined_descriptions(criterias: Iterable[Criteria], delimiter=","):
+def joined_descriptions(criterias: Iterable[Criteria], delimiter=", "):
     return delimiter.join([c.description for c in criterias])
 
 
 def joined_keyed_descriptions(
-    mapping: Mapping[Any, Criteria], delimiter=",", relationship=":"
+    mapping: Mapping[Any, Criteria], delimiter=", ", relationship=": "
 ):
     return delimiter.join(
         [f"{key}{relationship}{c.description}" for key, c in mapping.items()]
@@ -42,6 +42,27 @@ class PredicateCriteria(Criteria):
     @property
     def description(self) -> str:
         return self._description
+
+
+class WrappedCriteria(Criteria):
+    def __init__(self, inner_criteria: Criteria):
+        self.inner_criteria = inner_criteria
+
+    def _match(self, subject):
+        return self.inner_criteria.run_match(subject)
+
+    def _negated_match(self, subject) -> bool:
+        return self.inner_criteria.run_negated_match(subject)
+
+    @property
+    def description(self) -> str:
+        return self.inner_criteria.description
+
+    def failure_message(self, subject) -> str:
+        return self.inner_criteria.failure_message(subject)
+
+    def negated_failure_message(self, subject) -> str:
+        return self.inner_criteria.negated_failure_message(subject)
 
 
 class TimesMixin:

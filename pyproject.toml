@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fluent_assertions"
+name = "assertive"
 version = "0.0.1"
 description = "A small assertion library"
 authors = ["Peter Daly"]
