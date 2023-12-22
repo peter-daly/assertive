@@ -36,6 +36,7 @@ def test_is_equal_to_does_not_match_fail():
 # is_greater_than
 def test_is_greater_than_to_matches_pass():
     assert_that(2).matches(is_greater_than(1))
+    assert 2 == is_greater_than(1)
 
 
 def test_is_greater_than_to_does_not_match_pass():

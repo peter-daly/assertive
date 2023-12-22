@@ -14,6 +14,11 @@ assert_that(subject) == comparison # object or criteria
 assert_that(subject) != comparison # object or criteria
 ```
 
+Using matchers without criteria, just use classic asserts
+```python
+assert 2 == is_greater_than(1)
+```
+
 ## Critera Objects
 
 Critera helps define complex assertions in a concise manner
@@ -86,19 +91,6 @@ x = "hello"
 y = x
 
 assert_that(x).matches(is_same_instance_as(y)) # passes
-```
-
-#### is_true
-```python
-assert_that(True).matches(is_true()) # passes
-assert_that(False).matches(is_false()) # fails
-```
-
-
-#### is_false
-```python
-assert_that(True).matches(is_false()) # fails
-assert_that(False).matches(is_true()) # passes
 ```
 
 #### as_string_matches
