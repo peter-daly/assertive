@@ -97,24 +97,6 @@ class is_same_instance_as(Criteria):
         return f"is same instance as {self.expected}"
 
 
-class is_true(Criteria):
-    def _match(self, subject) -> bool:
-        return subject is True
-
-    @property
-    def description(self) -> str:
-        return "is True"
-
-
-class is_false(Criteria):
-    def _match(self, subject) -> bool:
-        return subject is False
-
-    @property
-    def description(self) -> str:
-        return "is False"
-
-
 class as_string_matches(Criteria):
     """When the subject called with the str the subject matches the criteria"""
 

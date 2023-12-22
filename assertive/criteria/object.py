@@ -1,4 +1,3 @@
-from typing import Any
 from assertive.assertions import Criteria, ensure_criteria
 from assertive.criteria.utils import WrappedCriteria, joined_keyed_descriptions
 

@@ -7,11 +7,9 @@ from assertive.criteria.basic import (
     is_greater_than_or_equal,
     is_less_than,
     is_less_than_or_equal,
-    is_false,
     is_none,
     is_not_none,
     is_same_instance_as,
-    is_true,
 )
 from assertive.criteria.exception import raises_exception
 
@@ -117,44 +115,6 @@ def test_is_less_than_or_equal_does_not_match_fail():
 
     with raises_exception(AssertionError, "Expected 2 to not match: <= 2"):
         assert_that(2).does_not_match(is_less_than_or_equal(2))
-
-
-# is_false
-def test_is_false_matches_pass():
-    assert_that(False).matches(is_false())
-
-
-def test_false_does_not_match_pass():
-    assert_that(True).does_not_match(is_false())
-
-
-def test_is_false_matches_fail():
-    with raises_exception(AssertionError, "Expected True to match: is False"):
-        assert_that(True).matches(is_false())
-
-
-def test_is_false_does_not_match_fail():
-    with raises_exception(AssertionError, "Expected False to not match: is False"):
-        assert_that(False).does_not_match(is_false())
-
-
-# is_true
-def test_is_true_matches_pass():
-    assert_that(True).matches(is_true())
-
-
-def test_is_true_does_not_match_pass():
-    assert_that(False).does_not_match(is_true())
-
-
-def test_is_true_matches_fail():
-    with raises_exception(AssertionError, "Expected False to match: is True"):
-        assert_that(False).matches(is_true())
-
-
-def test_is_true_does_not_match_fail():
-    with raises_exception(AssertionError, "Expected True to not match: is True"):
-        assert_that(True).does_not_match(is_true())
 
 
 # is_between
