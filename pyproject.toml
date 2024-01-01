@@ -4,15 +4,15 @@ version = "0.0.1"
 description = "A small assertion library"
 authors = ["Peter Daly"]
 license = "MIT"
-homepage = "https://github.com/peter-daly/fluent_assertions"
-repository = "https://github.com/peter-daly/fluent_assertions"
-documentation = "https://github.com/peter-daly/fluent_assertions"
+homepage = "https://github.com/peter-daly/assertive"
+repository = "https://github.com/peter-daly/assertive"
+documentation = "https://github.com/peter-daly/assertive"
 readme = "README.md"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
 ]
 packages = [
-    { include = "fluent_assertions" },
+    { include = "assertive" },
 ]
 include = ["CHANGES.rst"]
 
@@ -34,7 +34,7 @@ mkdocstrings-python = "^0.8.3"
 optional = true
 
 [tool.coverage.paths]
-source = ["fluent_assertions", "*/site-packages"]
+source = ["assertive", "*/site-packages"]
 tests = ["tests"]
 
 [tool.black]
@@ -50,7 +50,7 @@ max_complexity = 10
 
 [tool.coverage.run]
 branch = true
-source = ["fluent_assertions", "tests"]
+source = ["assertive", "tests"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
