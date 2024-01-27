@@ -1,0 +1,23 @@
+site_name: Assertive
+site_url: https://example.com/
+
+theme: readthedocs
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+nav:
+- Home: index.md
+- Criteria:
+  - basic: criteria/basic.md
+  - exception: criteria/exception.md
+  - mock: criteria/mock.md
+  - mapping: criteria/mapping.md
+  - numeric: criteria/numeric.md
+  - object: criteria/object.md
+  - string: criteria/string.md
+
+plugins:
+  - mkdocstrings
