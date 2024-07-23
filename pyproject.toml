@@ -6,7 +6,7 @@ authors = ["Peter Daly"]
 license = "MIT"
 homepage = "https://github.com/peter-daly/assertive"
 repository = "https://github.com/peter-daly/assertive"
-documentation = "https://github.com/peter-daly/assertive"
+documentation = "https://peter-daly.github.io/assertive/"
 readme = "README.md"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
