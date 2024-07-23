@@ -91,8 +91,7 @@ class Criteria(ABC):
 
     @property
     @abstractmethod
-    def description(self) -> str:
-        ...
+    def description(self) -> str: ...
 
     def failure_message(self, subject) -> str:
         """
@@ -128,7 +127,7 @@ class Criteria(ABC):
         return _XorCriteria(self, ensure_criteria(other))
 
     def __invert__(self):
-        return _NegatedCriteria(self)
+        return _InvertedCriteria(self)
 
     def __eq__(self, other):
         return self.run_match(other)
@@ -181,7 +180,7 @@ class _XorCriteria(Criteria):
         return f"{self.left.description} XOR {self.right.description}"
 
 
-class _NegatedCriteria(Criteria):
+class _InvertedCriteria(Criteria):
     def __init__(self, criteria: Criteria):
         self.criteria = criteria
 

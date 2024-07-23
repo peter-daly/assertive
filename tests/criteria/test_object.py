@@ -1,14 +1,15 @@
 from dataclasses import dataclass
-from assertive.assertions import assert_that
+
+from assertive.core import assert_that
 from assertive.criteria.basic import is_greater_than
-from assertive.criteria.string import regex
+from assertive.criteria.exception import raises_exception
 from assertive.criteria.object import (
     class_match,
     has_attributes,
-    is_type,
     is_exact_type,
+    is_type,
 )
-from assertive.criteria.exception import raises_exception
+from assertive.criteria.string import starts_with
 
 
 @dataclass(kw_only=True)
@@ -38,7 +39,7 @@ def test_has_attributes_does_not_match_pass():
 def test_has_attributes_matches_fail():
     with raises_exception(
         AssertionError,
-        "Expected Parent(x='1', y=2) to match: has attributes (x: hello)",
+        starts_with("Expected Parent(x='1', y=2) to match: has attributes (x: hello)"),
     ):
         assert_that(Parent(x="1", y=2)).matches(has_attributes(x="hello"))
 
@@ -118,24 +119,3 @@ def test_class_match_matches_pass():
 
     assert instance == class_match(Child, z=1.2)
     assert instance == class_match(Parent, y=2)
-
-
-# def test_is_exact_type_does_not_match_pass():
-#     assert_that("123").does_not_match(is_exact_type(int))
-#     assert_that(Child(x="1", y=2, z=1.2)).does_not_match(is_exact_type(Parent))
-
-
-# def test_is_exact_type_matches_fail():
-#     with raises_exception(
-#         AssertionError,
-#         "Expected 123 to match: is of type <class 'int'>",
-#     ):
-#         assert_that("123").matches(is_exact_type(int))
-
-
-# def test_is_exact_type_does_not_match_fail():
-#     with raises_exception(
-#         AssertionError,
-#         "Expected 123 to not match: is of type <class 'str'>",
-#     ):
-#         assert_that("123").does_not_match(is_exact_type(str))

@@ -1,5 +1,6 @@
 import re
-from assertive.assertions import Criteria
+
+from assertive.core import Criteria
 from assertive.criteria.utils import TimesMixin
 
 
@@ -21,6 +22,19 @@ class regex(StringCriteria):
 
     Args:
         pattern (str): The regular expression pattern to match.
+
+    Example:
+        ```python
+        # Using assert_that
+        assert_that("abc").matches(regex(r"abc")) # Passes
+        assert_that("abc").matches(regex(r"abc|def")) # Passes
+        assert_that("abc").matches(regex(r"def")) # Fails
+
+        # Using basic assert
+        assert "abc" == regex(r"abc") # Passes
+        assert "abc" == regex(r"abc|def") # Passes
+        assert "abc" == regex(r"def") # Fails
+        ```
     """
 
     def __init__(self, pattern):
@@ -40,6 +54,19 @@ class starts_with(StringCriteria):
 
     Args:
         prefix (str): The prefix to check for.
+
+    Example:
+        ```python
+        # Using assert_that
+        assert_that("abc").matches(starts_with("a")) # Passes
+        assert_that("abc").matches(starts_with("ab")) # Passes
+        assert_that("abc").matches(starts_with("abb")) # Fails
+
+        # Using basic assert
+        assert "abc" == starts_with("a") # Passes
+        assert "abc" == starts_with("ab") # Passes
+        assert "abc" == starts_with("ba") # Fails
+        ```
     """
 
     def __init__(self, prefix):
@@ -59,6 +86,19 @@ class ends_with(StringCriteria):
 
     Args:
         suffix (str): The suffix to check.
+
+    Example:
+        ```python
+        # Using assert_that
+        assert_that("abc").matches(ends_with("c")) # Passes
+        assert_that("abc").matches(ends_with("bc")) # Passes
+        assert_that("abc").matches(ends_with("b")) # Fails
+
+        # Using basic assert
+        assert "abc" == ends_with("c") # Passes
+        assert "abc" == ends_with("bc") # Passes
+        assert "abc" == ends_with("ac") # Fails
+        ```
     """
 
     def __init__(self, suffix):
@@ -78,6 +118,24 @@ class contains_substring(TimesMixin, StringCriteria):
 
     Args:
         substring (str): The substring to search for.
+
+    Example:
+        ```python
+        # Using assert_that
+        assert_that("hello").matches(contains_substring("ell")) # Passes
+        assert_that("hello").matches(contains_substring("ll")) # Passes
+        assert_that("hello").matches(contains_substring("l")) # Passes
+        assert_that("hello").matches(contains_substring("l").twice) # Passes
+        assert_that("hello").matches(contains_substring("ll").twice) # Fails
+        assert_that("hello").matches(contains_substring("hell")) # Passes
+        assert_that("hello").matches(contains_substring("goodbye").never) # Passes
+        assert_that("hello").matches(contains_substring("goodbye")) # Fails
+
+        # Using basic assert
+        assert "hello" == contains_substring("ell") # Passes
+        assert "hello" == contains_substring("hell") # Passes
+        assert "hello" == contains_substring("goodbye") # Fails
+        ```
     """
 
     def __init__(self, substring: str):

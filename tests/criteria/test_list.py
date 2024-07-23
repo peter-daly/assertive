@@ -1,4 +1,4 @@
-from assertive.assertions import assert_that
+from assertive.core import assert_that
 from assertive.criteria.basic import is_greater_than
 from assertive.criteria.list import (
     contains,

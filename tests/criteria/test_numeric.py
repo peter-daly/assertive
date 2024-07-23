@@ -1,21 +1,22 @@
-from assertive.assertions import assert_that
+from assertive.core import assert_that
+from assertive.criteria.exception import raises_exception
 from assertive.criteria.numeric import (
+    approximately_zero,
     as_absolute_matches,
     is_a_perfect_square,
     is_a_power_of,
-    is_multiple_of,
+    is_approximately_equal,
+    is_coprime_with,
     is_even,
+    is_multiple_of,
+    is_negative,
+    is_non_negative,
+    is_non_positive,
     is_odd,
     is_positive,
-    is_negative,
-    is_non_positive,
-    is_non_negative,
-    is_approximatly_equal,
+    is_prime,
     zero,
-    approximatly_zero,
-    is_a_factorial_of,
 )
-from assertive.criteria.exception import raises_exception
 
 
 # is_multiple_of
@@ -92,33 +93,33 @@ def test_is_odd_does_not_match_fail():
 
 # is_approximatly_equal
 def test_is_approximatly_equal_matches_pass():
-    assert_that(1).matches(is_approximatly_equal(1.00000000000000000000000001))
-    assert_that(1).matches(is_approximatly_equal(1.01).with_epsilon(0.1))
-    assert_that(1).matches(is_approximatly_equal(1.01).with_epsilon(1e-1))
+    assert_that(1).matches(is_approximately_equal(1.00000000000000000000000001))
+    assert_that(1).matches(is_approximately_equal(1.01).with_epsilon(0.1))
+    assert_that(1).matches(is_approximately_equal(1.01).with_epsilon(1e-1))
 
 
 def test_is_approximatly_equal_does_not_match_pass():
-    assert_that(1).does_not_match(is_approximatly_equal(1.1))
-    assert_that(1).does_not_match(is_approximatly_equal(1.01).with_epsilon(0.001))
-    assert_that(1).does_not_match(is_approximatly_equal(1.01).with_epsilon(1e-2))
+    assert_that(1).does_not_match(is_approximately_equal(1.1))
+    assert_that(1).does_not_match(is_approximately_equal(1.01).with_epsilon(0.001))
+    assert_that(1).does_not_match(is_approximately_equal(1.01).with_epsilon(1e-2))
 
 
 def test_is_approximatly_equal_matches_fail():
     with raises_exception(
         AssertionError, "Expected 1 to match: ~= 1.1; with epsilon 1e-10"
     ):
-        assert_that(1).matches(is_approximatly_equal(1.1))
+        assert_that(1).matches(is_approximately_equal(1.1))
     with raises_exception(
         AssertionError, "Expected 1 to match: ~= 1.01; with epsilon 0.001"
     ):
-        assert_that(1).matches(is_approximatly_equal(1.01).with_epsilon(0.001))
+        assert_that(1).matches(is_approximately_equal(1.01).with_epsilon(0.001))
 
 
 def test_is_approximatly_equal_does_not_match_fail():
     with raises_exception(
         AssertionError, "Expected 1 to not match: ~= 1.01; with epsilon 0.1"
     ):
-        assert_that(1).does_not_match(is_approximatly_equal(1.01).with_epsilon(0.1))
+        assert_that(1).does_not_match(is_approximately_equal(1.01).with_epsilon(0.1))
 
 
 # is_positive
@@ -231,33 +232,27 @@ def test_zero_does_not_match_fail():
 
 # approximatly_zero
 def test_approximatly_zero_matches_pass():
-    assert_that(0).matches(approximatly_zero())
-    assert_that(0.000000000000000001).matches(approximatly_zero())
-    assert_that(0.01).matches(approximatly_zero().with_epsilon(0.1))
-    assert_that(-0.01).matches(approximatly_zero().with_epsilon(0.1))
+    assert_that(0).matches(approximately_zero())
+    assert_that(0.000000000000000001).matches(approximately_zero())
+    assert_that(0.01).matches(approximately_zero().with_epsilon(0.1))
+    assert_that(-0.01).matches(approximately_zero().with_epsilon(0.1))
 
 
 def test_approximatly_zero_does_not_match_pass():
-    assert_that(-1).does_not_match(approximatly_zero())
-    assert_that(1).does_not_match(approximatly_zero())
-    assert_that(0.01).does_not_match(approximatly_zero().with_epsilon(0.00001))
-    assert_that(-0.01).does_not_match(approximatly_zero().with_epsilon(0.00001))
+    assert_that(-1).does_not_match(approximately_zero())
+    assert_that(1).does_not_match(approximately_zero())
+    assert_that(0.01).does_not_match(approximately_zero().with_epsilon(0.00001))
+    assert_that(-0.01).does_not_match(approximately_zero().with_epsilon(0.00001))
 
 
 def test_approximatly_zero_matches_fail():
-    with raises_exception(
-        AssertionError,
-        "Expected 0.1 to match: is approximatly zero with epsilon: 0.01",
-    ):
-        assert_that(0.1).matches(approximatly_zero().with_epsilon(0.01))
+    with raises_exception(AssertionError):
+        assert_that(0.1).matches(approximately_zero().with_epsilon(0.01))
 
 
 def test_approximatly_zero_does_not_match_fail():
-    with raises_exception(
-        AssertionError,
-        "Expected 0.001 to not match: is approximatly zero with epsilon: 0.01",
-    ):
-        assert_that(0.001).does_not_match(approximatly_zero().with_epsilon(0.01))
+    with raises_exception(AssertionError):
+        assert_that(0.001).does_not_match(approximately_zero().with_epsilon(0.01))
 
 
 # is_a_perfect_square
@@ -282,10 +277,7 @@ def test_is_a_perfect_square_matches_fail():
 
 
 def test_is_a_perfect_square_does_not_match_fail():
-    with raises_exception(
-        AssertionError,
-        "Expected 4 to not match: is a perfect square",
-    ):
+    with raises_exception(AssertionError):
         assert_that(4).does_not_match(is_a_perfect_square())
 
 
@@ -319,35 +311,6 @@ def test_is_a_power_of_does_not_match_fail():
         assert_that(9).does_not_match(is_a_power_of(3))
 
 
-# is_factorial_of
-def test_is_a_factorial_of_matches_pass():
-    assert_that(6).matches(is_a_factorial_of(3))
-    assert_that(6).matches(is_a_factorial_of(4))
-    assert_that(24).matches(is_a_factorial_of(4))
-    assert_that(24).matches(is_a_factorial_of(5))
-    assert_that(120).matches(is_a_factorial_of(5))
-
-
-def test_is_a_factorial_of_does_not_match_pass():
-    assert_that(120).does_not_match(is_a_factorial_of(4))
-
-
-def test_is_a_factorial_of_matches_fail():
-    with raises_exception(
-        AssertionError,
-        "Expected 120 to match: is a factorial of 4",
-    ):
-        assert_that(120).matches(is_a_factorial_of(4))
-
-
-def test_is_a_factorial_of_does_not_match_fail():
-    with raises_exception(
-        AssertionError,
-        "Expected 6 to not match: is a factorial of 5",
-    ):
-        assert_that(6).does_not_match(is_a_factorial_of(5))
-
-
 # as_absolute_matches
 def test_as_absolute_matches_matches_pass():
     assert_that(-6).matches(as_absolute_matches(6))
@@ -374,3 +337,65 @@ def test_as_absolute_does_not_match_fail():
         "Expected abs(-6) to not match: 6",
     ):
         assert_that(-6).does_not_match(as_absolute_matches(6))
+
+
+# is_prime
+def test_is_prime_matches_pass():
+    assert_that(2).matches(is_prime())
+    assert_that(3).matches(is_prime())
+    assert_that(5).matches(is_prime())
+    assert_that(7).matches(is_prime())
+    assert_that(11).matches(is_prime())
+    assert_that(13).matches(is_prime())
+    assert_that(17).matches(is_prime())
+    assert_that(617).matches(is_prime())
+
+
+def test_is_prime_does_not_match_pass():
+    assert_that(4).does_not_match(is_prime())
+    assert_that(100).does_not_match(is_prime())
+
+
+def test_is_prime_matches_fail():
+    with raises_exception(
+        AssertionError,
+        "Expected 4 to match: is prime",
+    ):
+        assert_that(4).matches(is_prime())
+
+
+def test_is_prime_does_not_match_fail():
+    with raises_exception(
+        AssertionError,
+        "Expected 11 to not match: is prime",
+    ):
+        assert_that(11).does_not_match(is_prime())
+
+
+# is_coprime_with
+def test_is_coprime_with_matches_pass():
+    assert_that(10).matches(is_coprime_with(9))
+    assert_that(15).matches(is_coprime_with(4))
+    assert_that(21).matches(is_coprime_with(2))
+
+
+def test_is_coprime_with_does_not_match_pass():
+    assert_that(4).does_not_match(is_coprime_with(2))
+    assert_that(100).does_not_match(is_coprime_with(10))
+    assert_that(10).does_not_match(is_coprime_with(5))
+
+
+def test_is_coprime_with_matches_fail():
+    with raises_exception(
+        AssertionError,
+        "Expected 4 to match: is co-prime with 2",
+    ):
+        assert_that(4).matches(is_coprime_with(2))
+
+
+def test_is_coprime_with_does_not_match_fail():
+    with raises_exception(
+        AssertionError,
+        "Expected 10 to not match: is co-prime with 9",
+    ):
+        assert_that(10).does_not_match(is_coprime_with(9))

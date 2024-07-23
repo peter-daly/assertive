@@ -1,4 +1,4 @@
-from assertive.assertions import assert_that
+from assertive.core import assert_that
 from assertive.criteria.basic import (
     as_string_matches,
     is_between,

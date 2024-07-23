@@ -1,11 +1,12 @@
-from abc import abstractmethod
+from collections.abc import Mapping
 from typing import Any
-from assertive.assertions import Criteria, ensure_criteria
+
+from assertive.core import Criteria, ensure_criteria
 from assertive.criteria.utils import (
+    get_failures_summary,
     joined_descriptions,
     joined_keyed_descriptions,
 )
-from collections.abc import Mapping
 
 
 class MappingCriteria(Criteria):
@@ -19,61 +20,72 @@ class has_key_values(MappingCriteria):
     Checks if the subject has the specified attributes, and if those attributes match the provided criteria.
 
     Args:
-        subject: The object to match against this criteria.
+        key_values: A dictionary of key value pairs to match against the subject.
 
-    Returns:
-        bool: True if all attribute criteria match, False otherwise.
+    Example:
+        ```python
+        # Using assert_that
+        assert_that({"a": 1, "b": 2}).matches(has_key_values({"a": 1})) # Passes
+        assert_that({"a": 1, "b": 2}).matches(has_key_values({"a": is_odd()})) # Passes
+
+        # Using basic assert
+        assert {"a": 1, "b": 2} == has_key_values({"a": 1}) # Passes
+        ```
+
     """
 
     def __init__(self, key_values: Mapping):
-        """
-        Initializes the criteria with the attributes and their expected values (or criteria).
-
-        Args:
-            attributes: A dictionary of attribute names and their expected values (or criteria).
-        """
         self.key_values = {k: ensure_criteria(v) for k, v in key_values.items()}
 
-    def _match(self, subject: Mapping):
-        """
-        Checks if the subject has the specified attributes, and if those attributes match the provided criteria.
+    def _get_failures(self, subject: Mapping):
+        failures = {}
 
-        Args:
-            subject: The object to match against this criteria.
-
-        Returns:
-            bool: True if all attribute criteria match, False otherwise.
-        """
         for name, criteria in self.key_values.items():
             if name not in subject:
-                return False
+                failures[name] = "not found"
 
             value = subject[name]
             if not criteria._match(value):
-                return False
+                failures[name] = criteria.failure_message(value)
+        return failures
 
-        return True
+    def _match(self, subject: Mapping):
+        failures = self._get_failures(subject)
+        return not failures
 
     @property
     def description(self):
         return f"has key values: {{{joined_keyed_descriptions(self.key_values)}}}"
 
+    def failure_message(self, subject) -> str:
+        headline = super().failure_message(subject)
+        failures = self._get_failures(subject)
+        failures_summary = get_failures_summary(failures)
+
+        return headline + "\n" + failures_summary
+
 
 class has_key_and_value(has_key_values):
     """
-    Initializes the criteria with the attributes and their expected values (or criteria).
+    Checks if a Mapping has an single key and value
 
     Args:
-        attributes: A dictionary of attribute names and their expected values (or criteria).
+        key: The key to match against the subject.
+        value: The value to match against the subject.
+
+    Example:
+        ```python
+        # Using assert_that
+        assert_that({"a": 1, "b": 2}).matches(has_key_and_value("a", 1)) # Passes
+        assert_that({"a": 1, "b": 2}).matches(has_key_and_value("a", is_odd())) # Passes
+
+        # Using basic assert
+        assert {"a": 1, "b": 2} == has_key_and_value("a", 1) # Passes
+        ```
+
     """
 
     def __init__(self, key: Any, value: Any):
-        """
-        Initializes the criteria with the attributes and their expected values (or criteria).
-
-        Args:
-            attributes: A dictionary of attribute names and their expected values (or criteria).
-        """
         super().__init__({key: value})
 
 
@@ -82,31 +94,23 @@ class has_exact_key_values(has_key_values):
     Checks if the subject has the specified attributes, and if those attributes match the provided criteria.
 
     Args:
-        subject: The object to match against this criteria.
+        key_values: A dictionary of key value pairs to match against the subject.
 
-    Returns:
-        bool: True if all attribute criteria match, False otherwise.
+    Example:
+        ```python
+        # Using assert_that
+        assert_that({"a": 1, "b": 2}).matches(has_exact_key_values({"a": 1, "b": 2})) # Passes
+        assert_that({"a": 1, "b": 2}).matches(has_exact_key_values({"a": is_odd()})) # Fails
+
+        # Using basic assert
+        assert {"a": 1, "b": 2} == has_exact_key_values({"a": is_odd(), "b": is_even()}) # Passes
+        ```
     """
 
     def __init__(self, key_values):
-        """
-        Initializes the criteria with the attributes and their expected values (or criteria).
-
-        Args:
-            attributes: A dictionary of attribute names and their expected values (or criteria).
-        """
         self.key_values = {k: ensure_criteria(v) for k, v in key_values.items()}
 
     def _match(self, subject: Mapping):
-        """
-        Checks if the subject has the specified attributes, and if those attributes match the provided criteria.
-
-        Args:
-            subject: The object to match against this criteria.
-
-        Returns:
-            bool: True if all attribute criteria match, False otherwise.
-        """
         if len(subject.keys()) != len(self.key_values):
             return False
 
@@ -119,34 +123,26 @@ class has_exact_key_values(has_key_values):
 
 class contains_keys(MappingCriteria):
     """
-    Determines if the given subject matches the criteria.
+    Determines if the given subject contains keys.
 
     Args:
-        subject (Mapping): The subject to be matched.
+        key: A list of keys to match against the subject.
 
-    Returns:
-        bool: True if the subject matches the criteria, False otherwise.
+    Example:
+        ```python
+        # Using assert_that
+        assert_that({"a": 1, "b": 2}).matches(contains_keys("a", "b")) # Passes
+        assert_that({"a": 1, "b": 2}).matches(contains_keys("c")) # Fails
+
+        # Using basic assert
+        assert {"a": 1, "b": 2} == contains_keys("a") # Passes
+        ```
     """
 
     def __init__(self, *keys):
-        """
-        Initializes the criteria with the keys to be checked for existence in the mapping.
-
-        Args:
-            keys: The keys to be checked for existence in the mapping.
-        """
         self.key_criteria = [(ensure_criteria(k)) for k in keys]
 
     def _match(self, subject: Mapping):
-        """
-        Determines if the given subject matches the criteria.
-
-        Args:
-            subject (Mapping): The subject to be matched.
-
-        Returns:
-            bool: True if the subject matches the criteria, False otherwise.
-        """
         keys = subject.keys()
         for criteria in self.key_criteria:
             if not any([criteria._match(key) for key in keys]):
@@ -160,25 +156,24 @@ class contains_keys(MappingCriteria):
 
 class contains_exact_keys(contains_keys):
     """
-    Determines if the given subject matches the criteria.
+    Determines if the given subject contains the exact keys.
 
     Args:
-        subject (Mapping): The subject to be matched.
+        key: A list of keys to match against the subject.
 
-    Returns:
-        bool: True if the subject matches the criteria, False otherwise.
+    Example:
+        ```python
+        # Using assert_that
+        assert_that({"a": 1, "b": 2}).matches(contains_exact_keys("a", "b")) # Passes
+        assert_that({"a": 1, "b": 2}).matches(contains_exact_keys("a")) # Fails
+
+        # Using basic assert
+        assert {"a": 1, "b": 2} == contains_exact_keys("a", "b") # Passes
+        ```
+
     """
 
     def _match(self, subject: Mapping):
-        """
-        Determines if the given subject matches the criteria.
-
-        Args:
-            subject (Mapping): The subject to be matched.
-
-        Returns:
-            bool: True if the subject matches the criteria, False otherwise.
-        """
         if len(subject.keys()) != len(self.key_criteria):
             return False
         return super()._match(subject)

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "assertive"
-version = "0.0.3"
-description = "A small assertion library"
+version = "0.1.0"
+description = "A small assertion library for testing"
 authors = ["Peter Daly"]
 license = "MIT"
 homepage = "https://github.com/peter-daly/assertive"
@@ -26,18 +26,26 @@ pytest-asyncio = "^0.21.1"
 black = "^22.3.0"
 flakeheaven = "^3.2.1"
 isort = "^5.10.1"
-mkdocs-material = "^8.5.11"
 wily = "^1.24.0"
+pyright = "^1.1.372"
 
 [tool.poetry.group.dev]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5.3"
-mkdocstrings = {version = "^0.24.0", extras = ["python"]}
+mkdocstrings = "^0.24.3"
+mkdocs-coverage = "^1.0.0"
+mkdocs-material = "^9.5.17"
+mkdocstrings-python = "^1.9.2"
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.1"
+mkdocs-section-index = "^0.3.8"
+mkdocs-puml = "^1.3.0"
+
 
 [tool.coverage.paths]
-source = ["assertive", "*/site-packages"]
+source = ["assertive"]
 tests = ["tests"]
 
 [tool.black]

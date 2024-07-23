@@ -1,4 +1,4 @@
-from assertive.assertions import assert_that
+from assertive.core import assert_that
 from assertive.criteria.basic import is_less_than
 from assertive.criteria.string import (
     regex,

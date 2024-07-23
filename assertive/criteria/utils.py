@@ -1,11 +1,13 @@
+from collections.abc import Sequence
 from typing import Any, Callable, Iterable, Mapping, Union
 
-from assertive.assertions import Criteria, ensure_criteria
+from assertive.core import Criteria, ensure_criteria
+
 from .basic import is_greater_than_or_equal
 
 
-def joined_descriptions(criterias: Iterable[Criteria], delimiter=", "):
-    return delimiter.join([c.description for c in criterias])
+def joined_descriptions(criteria_list: Iterable[Criteria], delimiter=", "):
+    return delimiter.join([c.description for c in criteria_list])
 
 
 def joined_keyed_descriptions(
@@ -14,6 +16,15 @@ def joined_keyed_descriptions(
     return delimiter.join(
         [f"{key}{relationship}{c.description}" for key, c in mapping.items()]
     )
+
+
+def get_failures_messages(failures_dict: Mapping[str, str]) -> Sequence[str]:
+    return [f"{attr} -> {message}" for attr, message in failures_dict.items()]
+
+
+def get_failures_summary(failures_dict: Mapping[str, str]) -> str:
+    messages = get_failures_messages(failures_dict)
+    return "Failures:\n" + "\n".join(messages)
 
 
 class AnyCriteria(Criteria):

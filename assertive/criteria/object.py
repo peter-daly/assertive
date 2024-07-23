@@ -1,5 +1,9 @@
-from assertive.assertions import Criteria, ensure_criteria
-from assertive.criteria.utils import WrappedCriteria, joined_keyed_descriptions
+from assertive.core import Criteria, ensure_criteria
+from assertive.criteria.utils import (
+    WrappedCriteria,
+    get_failures_summary,
+    joined_keyed_descriptions,
+)
 
 
 class has_attributes(Criteria):
@@ -10,38 +14,55 @@ class has_attributes(Criteria):
         **attributes: Keyword arguments representing the attributes to check. The key is the attribute name
             and the value is the criteria to apply to the attribute value.
 
-    Attributes:
-        attributes (dict): A dictionary containing the attribute names as keys and the corresponding criteria
-            as values.
-
-    Methods:
-        _match(subject): Checks if the subject object has all the specified attributes and if the attribute
-            values match the corresponding criteria.
-        description: Returns a string describing the criteria.
-
     Example:
-        criteria = has_attributes(name=has_length(5), age=is_greater_than(18))
-        result = criteria._match(obj)
-        description = criteria.description
+        ```python
+        @dataclass
+        class Person:
+            name: str
+            age: int
+
+        # Using assert_that
+        assert_that(Person(name="Alice", age=30)).matches(has_attributes(name="Alice", age=30)) # Passes
+        assert_that(Person(name="Alice", age=30)).matches(has_attributes(name="Alice")) # Passes
+        assert_that(Person(name="Alice", age=30)).matches(has_attributes(name="Bob")) # Fails
+
+        # Using basic assert
+        assert Person(name="Bob", age=30) == has_attributes(name="Bob", age=30) # Passes
+        ```
     """
 
     def __init__(self, **attributes):
         self.attributes = {k: ensure_criteria(v) for k, v in attributes.items()}
 
-    def _match(self, subject):
+    def _get_failures(self, subject):
+        failures = {}
+
         for attr_name, criteria in self.attributes.items():
             if not hasattr(subject, attr_name):
-                return False
+                failures[attr_name] = "not found"
+                continue
 
             attr_value = getattr(subject, attr_name)
             if not criteria._match(attr_value):
-                return False
+                failures[attr_name] = criteria.failure_message(attr_value)
 
-        return True
+        return failures
+
+    def _match(self, subject):
+        failures = self._get_failures(subject)
+        return not failures
 
     @property
     def description(self) -> str:
         return f"has attributes ({joined_keyed_descriptions(self.attributes)})"
+
+    def failure_message(self, subject) -> str:
+        headline = super().failure_message(subject)
+        failures = self._get_failures(subject)
+        failures_summary = get_failures_summary(failures)
+        message = headline + "\n" + failures_summary
+
+        return message
 
 
 class is_type(Criteria):
@@ -51,8 +72,25 @@ class is_type(Criteria):
     Args:
         expected (type): The expected type.
 
-    Returns:
-        bool: True if the subject is an instance of the expected type, False otherwise.
+    Example:
+        ```python
+        @dataclass(kw_only=True)
+        class Person:
+            name: str
+            age: int
+
+        @dataclass(kw_only=True)
+        class Employee(Person):
+            job: str
+
+        # Using assert_that
+        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(is_type(Person)) # Passes
+        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(is_type(Employee)) # Passes
+        assert_that(Person(name="Alice", age=30)).matches(is_type(Employee)) # Fails
+
+        # Using basic assert
+        assert Person(name="Bob", age=30) == is_type(Person) # Passes
+        ```
     """
 
     def __init__(self, expected: type):
@@ -73,13 +111,25 @@ class is_exact_type(Criteria):
     Args:
         expected (type): The expected type of the subject.
 
-    Attributes:
-        expected (type): The expected type of the subject.
+    Example:
+        ```python
+        @dataclass(kw_only=True)
+        class Person:
+            name: str
+            age: int
 
-    Methods:
-        _match(subject) -> bool: Checks if the subject is of the expected type.
-        description() -> str: Returns a description of the criteria.
+        @dataclass(kw_only=True)
+        class Employee(Person):
+            job: str
 
+        # Using assert_that
+        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(is_exact_type(Person)) # Fails
+        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(is_exact_type(Employee)) # Passes
+        assert_that(Person(name="Alice", age=30)).matches(is_exact_type(Employee)) # Fails
+
+        # Using basic assert
+        assert Person(name="Bob", age=30) == is_exact_type(Person) # Passes
+        ```
     """
 
     def __init__(self, expected: type):
@@ -102,10 +152,25 @@ class class_match(WrappedCriteria):
         **attributes: The attributes to match on the class.
 
     Example:
-        >>> obj = MyClass()
-        >>> criteria = class_match(MyClass, attr1=10, attr2='hello')
-        >>> criteria.matches(obj)
-        True
+        ```python
+        @dataclass(kw_only=True)
+        class Person:
+            name: str
+            age: int
+
+        @dataclass(kw_only=True)
+        class Employee(Person):
+            job: str
+
+        # Using assert_that
+        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(class_match(Person, name="Alice")) # Passes
+        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(class_match(Employee, job="Engineer")) # Passes
+        assert_that(Person(name="Alice", age=30)).matches(class_match(Person, age=40)) # Fails
+
+        # Using basic assert
+        assert Person(name="Bob", age=30) == class_match(Employee, name="bob") # Fails
+        assert Person(name="Bob", age=30) == class_match(Person, name="bob") # Passes
+        ```
     """
 
     def __init__(self, cls: type, **attributes):
@@ -122,10 +187,25 @@ class strict_class_match(WrappedCriteria):
         **attributes: The attributes to check for.
 
     Example:
-        >>> obj = MyClass()
-        >>> criteria = strict_class_match(MyClass, attr1='value1', attr2='value2')
-        >>> criteria(obj)
-        True
+        ```python
+        @dataclass(kw_only=True)
+        class Person:
+            name: str
+            age: int
+
+        @dataclass(kw_only=True)
+        class Employee(Person):
+            job: str
+
+        # Using assert_that
+        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(strict_class_match(Person, name="Alice")) # Fails
+        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(strict_class_match(Employee, job="Engineer")) # Passes
+        assert_that(Person(name="Alice", age=30)).matches(strict_class_match(Person, age=40)) # Fails
+
+        # Using basic assert
+        assert Employee(name="Bob", age=30, job="Developer") == strict_class_match(Person, name="bob") # Fails
+        assert Person(name="Bob", age=30) == strict_class_match(Person, name="bob") # Passes
+        ```
     """
 
     def __init__(self, cls: type, **attributes):
