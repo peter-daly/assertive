@@ -125,10 +125,10 @@ class contains_substring(TimesMixin, StringCriteria):
         assert_that("hello").matches(contains_substring("ell")) # Passes
         assert_that("hello").matches(contains_substring("ll")) # Passes
         assert_that("hello").matches(contains_substring("l")) # Passes
-        assert_that("hello").matches(contains_substring("l").twice) # Passes
-        assert_that("hello").matches(contains_substring("ll").twice) # Fails
+        assert_that("hello").matches(contains_substring("l").twice()) # Passes
+        assert_that("hello").matches(contains_substring("ll").twice()) # Fails
         assert_that("hello").matches(contains_substring("hell")) # Passes
-        assert_that("hello").matches(contains_substring("goodbye").never) # Passes
+        assert_that("hello").matches(contains_substring("goodbye").never()) # Passes
         assert_that("hello").matches(contains_substring("goodbye")) # Fails
 
         # Using basic assert

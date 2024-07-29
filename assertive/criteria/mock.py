@@ -27,9 +27,9 @@ class was_called_with(TimesMixin, Criteria):
         assert_that(mock).matches(was_called_with(1, 2, a=3)) # Passes
         assert_that(mock).matches(was_called_with(1, 2, b=4)) # Passes
         assert_that(mock).matches(was_called_with(is_odd(), is_even(), a=3)) # Passes
-        assert_that(mock).matches(was_called_with(is_odd(), is_even(), a=3).once) # Passes
-        assert_that(mock).matches(was_called_with(is_odd(), is_even(), a=3).twice) # Fails
-        assert_that(mock).matches(was_called_with(5, 3).never) # Passes
+        assert_that(mock).matches(was_called_with(is_odd(), is_even(), a=3).once()) # Passes
+        assert_that(mock).matches(was_called_with(is_odd(), is_even(), a=3).twice()) # Fails
+        assert_that(mock).matches(was_called_with(5, 3).never()) # Passes
 
         # Using basic assert
         assert mock = was_called_with(1, 2, a=3) # Passes
@@ -105,9 +105,9 @@ class was_called_exactly_with(TimesMixin, Criteria):
         # Using assert_that
         assert_that(mock).matches(was_called_exactly_with(1, 2, a=3)) # Fails
         assert_that(mock).matches(was_called_exactly_with(1, 2, a=is_odd(), b=4)) # Passes
-        assert_that(mock).matches(was_called_exactly_with(is_odd(), is_even(), a=3).never) # Passes
-        assert_that(mock).matches(was_called_exactly_with(is_odd(), is_even(), a=3, b=4).once) # Passes
-        assert_that(mock).matches(was_called_exactly_with(1, 2).never) # Fails
+        assert_that(mock).matches(was_called_exactly_with(is_odd(), is_even(), a=3).never()) # Passes
+        assert_that(mock).matches(was_called_exactly_with(is_odd(), is_even(), a=3, b=4).once()) # Passes
+        assert_that(mock).matches(was_called_exactly_with(1, 2).never()) # Fails
 
         # Using basic assert
         assert mock = was_called_exactly_with(1, 2, a=3, b=4) # Passes
@@ -182,9 +182,9 @@ class was_called(TimesMixin, Criteria):
 
         # Using assert_that
         assert_that(mock).matches(was_called()) # Passes
-        assert_that(mock).matches(was_called().once) # Fails
-        assert_that(mock).matches(was_called().never) # Fails
-        assert_that(mock).matches(was_called().twice) # Passes
+        assert_that(mock).matches(was_called().once()) # Fails
+        assert_that(mock).matches(was_called().never()) # Fails
+        assert_that(mock).matches(was_called().twice()) # Passes
         assert_that(mock).matches(was_called().times(3)) # Fails
         assert_that(mock).matches(was_called().at_least_times(1)) # Passes
 
