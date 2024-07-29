@@ -6,6 +6,7 @@ Assertive is a testing library that provides declarative assertions to you pytho
 ## Core of assertive
 
 Assertive is built on two core concepts.
+
  1. Criteria
  2. Assertions
 
@@ -29,7 +30,7 @@ assert 5 == ~is_even()  # Using INVERT
 ```
 
 
-## Assertions
+### Assertions
 `Criteria` can be used with python's inbuilt `assert` statement or you can also use `Assertions` from the assertive library.
 The key difference between `assert` and `Assertions` is that `Assertions` give a more detailed Assertion Error when the test fails.
 

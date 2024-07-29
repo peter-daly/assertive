@@ -3,7 +3,7 @@ from typing import Any, Callable, Iterable, Mapping, Union
 
 from assertive.core import Criteria, ensure_criteria
 
-from .basic import is_greater_than_or_equal
+from .basic import is_gte
 
 
 def joined_descriptions(criteria_list: Iterable[Criteria], delimiter=", "):
@@ -84,7 +84,7 @@ class TimesMixin:
     """
 
     def __init__(self):
-        self.times_criteria = is_greater_than_or_equal(1)
+        self.times_criteria = is_gte(1)
 
     def times(self, number: Union[int, Criteria]):
         """
@@ -99,7 +99,6 @@ class TimesMixin:
         self.times_criteria = ensure_criteria(number)
         return self
 
-    @property
     def once(self):
         """
         Specifies that the action should occur exactly once.
@@ -109,7 +108,6 @@ class TimesMixin:
         """
         return self.times(1)
 
-    @property
     def twice(self):
         """
         Specifies that the action should occur exactly twice.
@@ -119,7 +117,6 @@ class TimesMixin:
         """
         return self.times(2)
 
-    @property
     def never(self):
         """
         Specifies that the action should never occur.
@@ -139,4 +136,4 @@ class TimesMixin:
         Returns:
             self: The current instance of the class, allowing for method chaining.
         """
-        return self.times(is_greater_than_or_equal(number))
+        return self.times(is_gte(number))

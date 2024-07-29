@@ -1,12 +1,12 @@
 from assertive.core import assert_that
-from assertive.criteria.basic import is_less_than
-from assertive.criteria.string import (
-    regex,
-    ends_with,
-    starts_with,
-    contains_substring,
-)
+from assertive.criteria.basic import is_lt
 from assertive.criteria.exception import raises_exception
+from assertive.criteria.string import (
+    contains_substring,
+    ends_with,
+    regex,
+    starts_with,
+)
 
 # type
 
@@ -96,9 +96,9 @@ def test_contains_substring_matches_pass():
         contains_substring("hello").at_least_times(2)
     )
     assert_that("hello hello hello said the police officer").matches(
-        contains_substring("hello").times(is_less_than(5))
+        contains_substring("hello").times(is_lt(5))
     )
-    assert_that("abc").matches(contains_substring("hello").never)
+    assert_that("abc").matches(contains_substring("hello").never())
 
 
 def test_contains_substring_does_not_match_pass():
@@ -117,7 +117,7 @@ def test_contains_substring_matches_fail():
         AssertionError,
         "Expected 'hello hello' to match: contains 'hello' with number of times matching: 1",
     ):
-        assert_that("hello hello").matches(contains_substring("hello").once)
+        assert_that("hello hello").matches(contains_substring("hello").once())
 
 
 def test_contains_substring_does_not_match_fail():
@@ -125,4 +125,4 @@ def test_contains_substring_does_not_match_fail():
         AssertionError,
         "Expected 'abc' to not match: contains 'c' with number of times matching: 1",
     ):
-        assert_that("abc").does_not_match(contains_substring("c").once)
+        assert_that("abc").does_not_match(contains_substring("c").once())

@@ -192,7 +192,7 @@ class _InvertedCriteria(Criteria):
 
     @property
     def description(self) -> str:
-        return f"[NEGATED]: {self.criteria.description}"
+        return f"INVERTED({self.criteria.description})"
 
 
 class _default_ensured_criteria(Criteria):

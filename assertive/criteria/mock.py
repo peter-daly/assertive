@@ -234,7 +234,7 @@ class was_called_once(WrappedCriteria):
     """
 
     def __init__(self):
-        super().__init__(was_called().once)
+        super().__init__(was_called().once())
 
 
 class was_called_once_with(WrappedCriteria):
@@ -263,7 +263,7 @@ class was_called_once_with(WrappedCriteria):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(was_called_with(*args, **kwargs).once)
+        super().__init__(was_called_with(*args, **kwargs).once())
 
 
 class was_called_once_exactly_with(WrappedCriteria):
@@ -291,7 +291,7 @@ class was_called_once_exactly_with(WrappedCriteria):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(was_called_exactly_with(*args, **kwargs).once)
+        super().__init__(was_called_exactly_with(*args, **kwargs).once())
 
 
 class was_not_called(WrappedCriteria):
@@ -317,7 +317,7 @@ class was_not_called(WrappedCriteria):
     """
 
     def __init__(self):
-        super().__init__(was_called().never)
+        super().__init__(was_called().never())
 
 
 class was_not_called_with(WrappedCriteria):
@@ -346,7 +346,7 @@ class was_not_called_with(WrappedCriteria):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(was_called_with(*args, **kwargs).never)
+        super().__init__(was_called_with(*args, **kwargs).never())
 
 
 class was_not_called_exactly_with(WrappedCriteria):
@@ -375,4 +375,4 @@ class was_not_called_exactly_with(WrappedCriteria):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(was_called_exactly_with(*args, **kwargs).never)
+        super().__init__(was_called_exactly_with(*args, **kwargs).never())

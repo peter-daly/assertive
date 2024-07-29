@@ -7,7 +7,7 @@ from assertive.core import (
 )
 
 
-class is_equal_to(_default_ensured_criteria):
+class is_eq(_default_ensured_criteria):
     """
     Checks subject is equal to the expected value
 
@@ -17,16 +17,16 @@ class is_equal_to(_default_ensured_criteria):
     Example:
         ```python
         # Using assert_that
-        assert_that(2).matches(is_equal_to(1)) # Fails
-        assert_that(1).matches(is_equal_to(1)) # Passes
-        assert_that(1).matches(1) # Sames as using is_equal_to
+        assert_that(2).matches(is_eq(1)) # Fails
+        assert_that(1).matches(is_eq(1)) # Passes
+        assert_that(1).matches(1) # Sames as using is_eq
         ```
     """
 
     pass
 
 
-class is_greater_than(Criteria):
+class is_gt(Criteria):
     """
     Checks subject is greater than expected value
 
@@ -36,10 +36,10 @@ class is_greater_than(Criteria):
     Example:
         ```python
         # Using assert_that
-        assert_that(2).matches(is_greater_than(1))
+        assert_that(2).matches(is_gt(1))
 
         # Using basic assert
-        assert 2 == is_greater_than(1)
+        assert 2 == is_gt(1)
         ```
 
     """
@@ -55,7 +55,7 @@ class is_greater_than(Criteria):
         return f"> {self.expected}"
 
 
-class is_greater_than_or_equal(Criteria):
+class is_gte(Criteria):
     """
     Checks subject is greater or equal than expected value
 
@@ -65,10 +65,10 @@ class is_greater_than_or_equal(Criteria):
     Example:
         ```python
         # Using assert_that
-        assert_that(2).matches(is_greater_than_or_equal(2))
+        assert_that(2).matches(is_gte(2))
 
         # Using basic assert
-        assert 2 == is_greater_than_or_equal(1)
+        assert 2 == is_gte(1)
         ```
     """
 
@@ -83,7 +83,7 @@ class is_greater_than_or_equal(Criteria):
         return f">= {self.expected}"
 
 
-class is_less_than(Criteria):
+class is_lt(Criteria):
     """
     Checks subject is less than expected value
 
@@ -93,10 +93,10 @@ class is_less_than(Criteria):
     Example:
         ```python
         # Using assert_that
-        assert_that(1).matches(is_less_than(2))
+        assert_that(1).matches(is_lt(2))
 
         # Using basic assert
-        assert 0 == is_less_than(1)
+        assert 0 == is_lt(1)
         ```
 
     """
@@ -112,7 +112,7 @@ class is_less_than(Criteria):
         return f"< {self.expected}"
 
 
-class is_less_than_or_equal(Criteria):
+class is_lte(Criteria):
     """
     Checks subject is less or equal than expected value
 
@@ -122,10 +122,10 @@ class is_less_than_or_equal(Criteria):
     Example:
         ```python
         # Using assert_that
-        assert_that(1).matches(is_less_than_or_equal(2))
+        assert_that(1).matches(is_lte(2))
 
         # Using basic assert
-        assert 1 == is_less_than_or_equal(1)
+        assert 1 == is_lte(1)
         ```
 
     """
@@ -157,8 +157,8 @@ class is_between(Criteria):
         # Using assert_that
         assert_that(2).matches(is_between(1, 3)) # Passes
         assert_that(2).matches(is_between(1, 2)) # Passes
-        assert_that(2).matches(is_between(1, 2).inclusive) # Passes
-        assert_that(2).matches(is_between(1, 2).exclusive) # Fails
+        assert_that(2).matches(is_between(1, 2).inclusive()) # Passes
+        assert_that(2).matches(is_between(1, 2).exclusive()) # Fails
 
         # Using basic assert
         assert 5 == is_between(1, 10)
@@ -170,7 +170,6 @@ class is_between(Criteria):
         self.upper = upper
         self.is_inclusive = True
 
-    @property
     def inclusive(self):
         """
         Upper and lower are included in the accepted range
@@ -178,7 +177,6 @@ class is_between(Criteria):
         self.is_inclusive = True
         return self
 
-    @property
     def exclusive(self):
         """
         Upper and lower are excluded from the accepted range

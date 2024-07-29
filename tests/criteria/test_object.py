@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from assertive.core import assert_that
-from assertive.criteria.basic import is_greater_than
+from assertive.criteria.basic import is_gt
 from assertive.criteria.exception import raises_exception
 from assertive.criteria.object import (
     class_match,
@@ -26,14 +26,12 @@ class Child(Parent):
 # has_attributes
 def test_has_attributes_matches_pass():
     assert_that(Parent(x="1", y=2)).matches(has_attributes(x="1", y=2))
-    assert_that(Parent(x="1", y=2)).matches(has_attributes(x="1", y=is_greater_than(1)))
+    assert_that(Parent(x="1", y=2)).matches(has_attributes(x="1", y=is_gt(1)))
 
 
 def test_has_attributes_does_not_match_pass():
     assert_that(Parent(x="1", y=2)).does_not_match(has_attributes(x="hello", y=2))
-    assert_that(Parent(x="1", y=2)).does_not_match(
-        has_attributes(x="1", y=is_greater_than(4))
-    )
+    assert_that(Parent(x="1", y=2)).does_not_match(has_attributes(x="1", y=is_gt(4)))
 
 
 def test_has_attributes_matches_fail():

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "assertive"
-version = "0.1.0"
+version = "0.2.0"
 description = "A small assertion library for testing"
 authors = ["Peter Daly"]
 license = "MIT"
