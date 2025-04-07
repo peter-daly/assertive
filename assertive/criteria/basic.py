@@ -16,10 +16,10 @@ class is_eq(_default_ensured_criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(2).matches(is_eq(1)) # Fails
-        assert_that(1).matches(is_eq(1)) # Passes
-        assert_that(1).matches(1) # Sames as using is_eq
+
+        assert 2 == is_eq(1) # Fails
+        assert 1 == is_eq(1) # Passes
+
         ```
     """
 
@@ -35,11 +35,10 @@ class is_gt(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(2).matches(is_gt(1))
 
-        # Using basic assert
-        assert 2 == is_gt(1)
+        assert 2 == is_gt(1) # Passes
+        assert 2 == is_gt(2) # Fails
+
         ```
 
     """
@@ -49,10 +48,6 @@ class is_gt(Criteria):
 
     def _match(self, subject) -> bool:
         return subject > self.expected
-
-    @property
-    def description(self) -> str:
-        return f"> {self.expected}"
 
 
 class is_gte(Criteria):
@@ -64,11 +59,10 @@ class is_gte(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(2).matches(is_gte(2))
 
-        # Using basic assert
-        assert 2 == is_gte(1)
+        assert 2 == is_gte(2) # Passes
+        assert 2 == is_gte(1) # Passes
+        assert 1 == is_gte(2) # Fails
         ```
     """
 
@@ -77,10 +71,6 @@ class is_gte(Criteria):
 
     def _match(self, subject) -> bool:
         return subject >= self.expected
-
-    @property
-    def description(self) -> str:
-        return f">= {self.expected}"
 
 
 class is_lt(Criteria):
@@ -92,11 +82,9 @@ class is_lt(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(1).matches(is_lt(2))
 
-        # Using basic assert
-        assert 0 == is_lt(1)
+        assert 1 == is_lt(2)) # Passes
+        assert 2 == is_lt(2) # Fails
         ```
 
     """
@@ -106,10 +94,6 @@ class is_lt(Criteria):
 
     def _match(self, subject) -> bool:
         return subject < self.expected
-
-    @property
-    def description(self) -> str:
-        return f"< {self.expected}"
 
 
 class is_lte(Criteria):
@@ -121,11 +105,10 @@ class is_lte(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(1).matches(is_lte(2))
 
-        # Using basic assert
-        assert 1 == is_lte(1)
+        assert 1 == is_lte(2) # Passes
+        assert 1 == is_lte(1) # Passes
+        assert 2 == is_lte(1) # Fails
         ```
 
     """
@@ -135,10 +118,6 @@ class is_lte(Criteria):
 
     def _match(self, subject) -> bool:
         return subject <= self.expected
-
-    @property
-    def description(self) -> str:
-        return f"<= {self.expected}"
 
 
 class is_between(Criteria):
@@ -154,14 +133,12 @@ class is_between(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(2).matches(is_between(1, 3)) # Passes
-        assert_that(2).matches(is_between(1, 2)) # Passes
-        assert_that(2).matches(is_between(1, 2).inclusive()) # Passes
-        assert_that(2).matches(is_between(1, 2).exclusive()) # Fails
 
-        # Using basic assert
-        assert 5 == is_between(1, 10)
+        assert 2 == is_between(1, 3) # Passes
+        assert 2 == is_between(1, 2) # Passes
+        assert 2 == is_between(1, 2).inclusive() # Passes
+        assert 2 == is_between(1, 2).exclusive() # Fails
+
         ```
     """
 
@@ -189,11 +166,6 @@ class is_between(Criteria):
             return subject >= self.lower and subject <= self.upper
         return subject > self.lower and subject < self.upper
 
-    @property
-    def description(self) -> str:
-        inclusivness = "inclusive" if self.is_inclusive else "exclusive"
-        return f"is between {self.lower} and {self.upper}; {inclusivness}"
-
 
 class is_same_instance_as(Criteria):
     """
@@ -211,13 +183,9 @@ class is_same_instance_as(Criteria):
         y = MyClass()
         z = x
 
-        # Using assert_that
+        assert x == is_same_instance_as(z) # Passes
+        assert x == is_same_instance_as(y) # Fails
 
-        assert_that(x).matches(is_same_instance_as(z)) # Passes
-        assert_that(x).matches(is_same_instance_as(y)) # Fails
-
-        # Using basic assert
-        assert x == is_same_instance_as(z)
         ```
     """
 
@@ -226,10 +194,6 @@ class is_same_instance_as(Criteria):
 
     def _match(self, subject) -> bool:
         return subject is self.expected
-
-    @property
-    def description(self) -> str:
-        return f"is same instance as {self.expected}"
 
 
 class as_string_matches(Criteria):
@@ -241,11 +205,9 @@ class as_string_matches(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(1).matches(as_string_matches("1")) # Passes
 
-        # Using basic assert
-        assert 1 == as_string_matches("1")
+        assert 1 == as_string_matches("1") # Passes
+
         ```
     """
 
@@ -253,17 +215,7 @@ class as_string_matches(Criteria):
         self.criteria = ensure_criteria(criteria)
 
     def _match(self, subject) -> bool:
-        return self.criteria._match(str(subject))
-
-    @property
-    def description(self) -> str:
-        return self.criteria.description
-
-    def failure_message(self, subject) -> str:
-        return f"Expected str({subject}) to match: {self.description}"
-
-    def negated_failure_message(self, subject) -> str:
-        return f"Expected str({subject}) to not match: {self.description}"
+        return self.criteria.run_match(str(subject))
 
 
 class is_none(Criteria):
@@ -275,21 +227,15 @@ class is_none(Criteria):
         x = None
         y = 4
 
-        # Using assert_that
-        assert_that(x).matches(is_none()) # Passes
-        assert_that(y).matches(is_none()) # Fails
 
-        # Using basic assert
-        assert x == is_none()
+        assert x == is_none() # Passes
+        assert y == is_none() # Fails
+
         ```
     """
 
     def _match(self, subject) -> bool:
         return subject is None
-
-    @property
-    def description(self) -> str:
-        return "is None"
 
 
 class is_not_none(Criteria):
@@ -301,18 +247,11 @@ class is_not_none(Criteria):
         x = None
         y = 4
 
-        # Using assert_that
-        assert_that(x).matches(is_not_none()) # Fails
-        assert_that(y).matches(is_not_none()) # Passes
+        assert x == is_not_none() # Fails
+        assert y == is_not_none() # Passes
 
-        # Using basic assert
-        assert y == is_not_none()
         ```
     """
 
     def _match(self, subject) -> bool:
         return subject is not None
-
-    @property
-    def description(self) -> str:
-        return "is not None"

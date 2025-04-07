@@ -1,30 +1,8 @@
-from collections.abc import Sequence
-from typing import Any, Callable, Iterable, Mapping, Union
+from typing import Any, Callable, Union
 
 from assertive.core import Criteria, ensure_criteria
 
 from .basic import is_gte
-
-
-def joined_descriptions(criteria_list: Iterable[Criteria], delimiter=", "):
-    return delimiter.join([c.description for c in criteria_list])
-
-
-def joined_keyed_descriptions(
-    mapping: Mapping[Any, Criteria], delimiter=", ", relationship=": "
-):
-    return delimiter.join(
-        [f"{key}{relationship}{c.description}" for key, c in mapping.items()]
-    )
-
-
-def get_failures_messages(failures_dict: Mapping[str, str]) -> Sequence[str]:
-    return [f"{attr} -> {message}" for attr, message in failures_dict.items()]
-
-
-def get_failures_summary(failures_dict: Mapping[str, str]) -> str:
-    messages = get_failures_messages(failures_dict)
-    return "Failures:\n" + "\n".join(messages)
 
 
 class AnyCriteria(Criteria):
@@ -35,10 +13,6 @@ class AnyCriteria(Criteria):
 
     def _negated_match(self, subject) -> bool:
         return True
-
-    @property
-    def description(self) -> str:
-        return "ANY"
 
 
 ANY = AnyCriteria()
@@ -52,10 +26,6 @@ class PredicateCriteria(Criteria):
     def _match(self, subject) -> bool:
         return self.predicate(subject)
 
-    @property
-    def description(self) -> str:
-        return self._description
-
 
 class WrappedCriteria(Criteria):
     def __init__(self, inner_criteria: Criteria):
@@ -66,16 +36,6 @@ class WrappedCriteria(Criteria):
 
     def _negated_match(self, subject) -> bool:
         return self.inner_criteria.run_negated_match(subject)
-
-    @property
-    def description(self) -> str:
-        return self.inner_criteria.description
-
-    def failure_message(self, subject) -> str:
-        return self.inner_criteria.failure_message(subject)
-
-    def negated_failure_message(self, subject) -> str:
-        return self.inner_criteria.negated_failure_message(subject)
 
 
 class TimesMixin:

@@ -4,7 +4,6 @@ typecheck:
 	@echo "Typechecking"
 	@poetry run pyright .
 
-
 lint:
 	@echo "Linting with Ruff..."
 	@poetry run ruff check .

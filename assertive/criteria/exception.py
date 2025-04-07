@@ -1,7 +1,7 @@
 from types import TracebackType
 from typing import Callable, Optional, Union
 
-from assertive.core import Criteria, assert_that, ensure_criteria
+from assertive.core import Criteria, ensure_criteria
 from assertive.criteria.basic import as_string_matches
 from assertive.criteria.object import is_exact_type, is_type
 from assertive.criteria.utils import ANY
@@ -26,16 +26,6 @@ class ExceptionCriteria(Criteria):
         self.raised = True
         self.exception = subject
 
-    def failure_message(self, subject) -> str:
-        if not self.raised:
-            return f"{subject} has not raised an exception"
-        return f"{self.exception} should match {self.description}"
-
-    def negated_failure_message(self, subject) -> str:
-        if not self.raised:
-            return f"{subject} has not raised an exception"
-        return f"{self.exception} should not match {self.description}"
-
     def __enter__(self):
         return self
 
@@ -45,7 +35,10 @@ class ExceptionCriteria(Criteria):
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ):
-        assert_that(exc_val).matches(self)
+        if not self.run_match(exc_val):
+            raise AssertionError(
+                f"Expected exception of type {self.exception.__class__.__name__}, but got {exc_val}"
+            )
         return True
 
     async def __aenter__(self):
@@ -57,7 +50,10 @@ class ExceptionCriteria(Criteria):
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ):
-        assert_that(exc_val).matches(self)
+        if not self.run_match(exc_val):
+            raise AssertionError(
+                f"Expected exception of type {self.exception.__class__.__name__}, but got {exc_val}"
+            )
         return True
 
 
@@ -70,13 +66,6 @@ class raises(ExceptionCriteria):
         if self.raised:
             return self.criteria.run_match(self.exception)
         return False
-
-    @property
-    def description(self) -> str:
-        if not self.raised:
-            return "exception has not been raised"
-
-        return f"raises exception matching {self.criteria.description}"
 
 
 class raises_exception(raises):

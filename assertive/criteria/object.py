@@ -1,8 +1,6 @@
 from assertive.core import Criteria, ensure_criteria
 from assertive.criteria.utils import (
     WrappedCriteria,
-    get_failures_summary,
-    joined_keyed_descriptions,
 )
 
 
@@ -21,12 +19,12 @@ class has_attributes(Criteria):
             name: str
             age: int
 
-        # Using assert_that
-        assert_that(Person(name="Alice", age=30)).matches(has_attributes(name="Alice", age=30)) # Passes
-        assert_that(Person(name="Alice", age=30)).matches(has_attributes(name="Alice")) # Passes
-        assert_that(Person(name="Alice", age=30)).matches(has_attributes(name="Bob")) # Fails
 
-        # Using basic assert
+        assert Person(name="Alice", age=30) == has_attributes(name="Alice", age=30) # Passes
+        assert Person(name="Alice", age=30) == has_attributes(name="Alice") # Passes
+        assert Person(name="Alice", age=30) == has_attributes(name="Bob") # Fails
+
+
         assert Person(name="Bob", age=30) == has_attributes(name="Bob", age=30) # Passes
         ```
     """
@@ -34,35 +32,15 @@ class has_attributes(Criteria):
     def __init__(self, **attributes):
         self.attributes = {k: ensure_criteria(v) for k, v in attributes.items()}
 
-    def _get_failures(self, subject):
-        failures = {}
-
+    def _match(self, subject):
         for attr_name, criteria in self.attributes.items():
             if not hasattr(subject, attr_name):
-                failures[attr_name] = "not found"
-                continue
+                return False
 
             attr_value = getattr(subject, attr_name)
-            if not criteria._match(attr_value):
-                failures[attr_name] = criteria.failure_message(attr_value)
-
-        return failures
-
-    def _match(self, subject):
-        failures = self._get_failures(subject)
-        return not failures
-
-    @property
-    def description(self) -> str:
-        return f"has attributes ({joined_keyed_descriptions(self.attributes)})"
-
-    def failure_message(self, subject) -> str:
-        headline = super().failure_message(subject)
-        failures = self._get_failures(subject)
-        failures_summary = get_failures_summary(failures)
-        message = headline + "\n" + failures_summary
-
-        return message
+            if not criteria.run_match(attr_value):
+                return False
+        return True
 
 
 class is_type(Criteria):
@@ -83,12 +61,12 @@ class is_type(Criteria):
         class Employee(Person):
             job: str
 
-        # Using assert_that
-        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(is_type(Person)) # Passes
-        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(is_type(Employee)) # Passes
-        assert_that(Person(name="Alice", age=30)).matches(is_type(Employee)) # Fails
 
-        # Using basic assert
+        assert Employee(name="Alice", age=30, job="Engineer") == is_type(Person) # Passes
+        assert Employee(name="Alice", age=30, job="Engineer") == is_type(Employee) # Passes
+        assert Person(name="Alice", age=30) == is_type(Employee) # Fails
+
+
         assert Person(name="Bob", age=30) == is_type(Person) # Passes
         ```
     """
@@ -98,10 +76,6 @@ class is_type(Criteria):
 
     def _match(self, subject) -> bool:
         return isinstance(subject, self.expected)
-
-    @property
-    def description(self) -> str:
-        return f"is an instance of {self.expected}"
 
 
 class is_exact_type(Criteria):
@@ -122,12 +96,12 @@ class is_exact_type(Criteria):
         class Employee(Person):
             job: str
 
-        # Using assert_that
-        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(is_exact_type(Person)) # Fails
-        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(is_exact_type(Employee)) # Passes
-        assert_that(Person(name="Alice", age=30)).matches(is_exact_type(Employee)) # Fails
 
-        # Using basic assert
+        assert Employee(name="Alice", age=30, job="Engineer") == is_exact_type(Person) # Fails
+        assert Employee(name="Alice", age=30, job="Engineer") == is_exact_type(Employee) # Passes
+        assert Person(name="Alice", age=30) == is_exact_type(Employee) # Fails
+
+
         assert Person(name="Bob", age=30) == is_exact_type(Person) # Passes
         ```
     """
@@ -137,10 +111,6 @@ class is_exact_type(Criteria):
 
     def _match(self, subject) -> bool:
         return subject.__class__ == self.expected
-
-    @property
-    def description(self) -> str:
-        return f"is of type {self.expected}"
 
 
 class class_match(WrappedCriteria):
@@ -162,12 +132,12 @@ class class_match(WrappedCriteria):
         class Employee(Person):
             job: str
 
-        # Using assert_that
-        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(class_match(Person, name="Alice")) # Passes
-        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(class_match(Employee, job="Engineer")) # Passes
-        assert_that(Person(name="Alice", age=30)).matches(class_match(Person, age=40)) # Fails
 
-        # Using basic assert
+        assert Employee(name="Alice", age=30, job="Engineer") == class_match(Person, name="Alice") # Passes
+        assert Employee(name="Alice", age=30, job="Engineer") == class_match(Employee, job="Engineer") # Passes
+        assert Person(name="Alice", age=30) == class_match(Person, age=40) # Fails
+
+
         assert Person(name="Bob", age=30) == class_match(Employee, name="bob") # Fails
         assert Person(name="Bob", age=30) == class_match(Person, name="bob") # Passes
         ```
@@ -197,12 +167,12 @@ class strict_class_match(WrappedCriteria):
         class Employee(Person):
             job: str
 
-        # Using assert_that
-        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(strict_class_match(Person, name="Alice")) # Fails
-        assert_that(Employee(name="Alice", age=30, job="Engineer")).matches(strict_class_match(Employee, job="Engineer")) # Passes
-        assert_that(Person(name="Alice", age=30)).matches(strict_class_match(Person, age=40)) # Fails
 
-        # Using basic assert
+        assert Employee(name="Alice", age=30, job="Engineer") == strict_class_match(Person, name="Alice") # Fails
+        assert Employee(name="Alice", age=30, job="Engineer") == strict_class_match(Employee, job="Engineer") # Passes
+        assert Person(name="Alice", age=30) == strict_class_match(Person, age=40) # Fails
+
+
         assert Employee(name="Bob", age=30, job="Developer") == strict_class_match(Person, name="bob") # Fails
         assert Person(name="Bob", age=30) == strict_class_match(Person, name="bob") # Passes
         ```
