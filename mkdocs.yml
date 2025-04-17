@@ -9,8 +9,8 @@ validation:
   unrecognized_links: warn
 
 nav:
-- Home: index.md
-- Criteria: criteria/
+  - Home: index.md
+  - Criteria: criteria/
 
 markdown_extensions:
   - attr_list
