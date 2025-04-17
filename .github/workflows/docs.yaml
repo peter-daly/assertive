@@ -9,6 +9,7 @@ on:
       - "mkdocs.yaml"
 
 permissions:
+  id-token: write # This is required for actions/deploy-pages
   contents: read # This is required for actions/checkout
   pages: write # This is required for actions/deploy-pages
 jobs:
