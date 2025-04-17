@@ -1,0 +1,50 @@
+name: Publish Docs to GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yaml"
+
+permissions:
+  contents: read # This is required for actions/checkout
+  pages: write # This is required for actions/deploy-pages
+jobs:
+  publish-to-github-pages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Configure Poetry
+        run: |
+          poetry config virtualenvs.create false
+
+      - name: Install dependencies with Poetry
+        run: |
+          poetry install --with dev
+
+      - name: Build docs site
+        run: poetry run mkdocs build
+
+      - name: Upload site to artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload site folder
+          path: "./site"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
