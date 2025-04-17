@@ -1,5 +1,5 @@
 import math
-from typing import Union
+from typing import Mapping, Union
 
 from assertive.core import Criteria, ensure_criteria
 
@@ -10,29 +10,21 @@ class is_multiple_of(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(4).matches(is_multiple_of(2)) # Passes
-        assert_that(6).matches(is_multiple_of(2)) # Passes
-        assert_that(5).matches(is_multiple_of(2)) # Fails
 
-        # Using basic assert
         assert 4 == is_multiple_of(2) # Passes
-        assert 2 == is_multiple_of(2) # Passes
+        assert 6 == is_multiple_of(2) # Passes
         assert 5 == is_multiple_of(2) # Fails
+
         ```
     """
 
-    def __init__(self, number: int):
-        self.number = number
+    def __init__(self, value: int):
+        self.value = value
 
     def _match(self, subject) -> bool:
         if subject == 0:
             return False
-        return self.number % subject == 0
-
-    @property
-    def description(self) -> str:
-        return f"is multiple of {self.number}"
+        return self.value % subject == 0
 
 
 class is_even(Criteria):
@@ -41,12 +33,12 @@ class is_even(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(4).matches(is_even()) # Passes
-        assert_that(6).matches(is_even()) # Passes
-        assert_that(5).matches(is_even()) # Fails
 
-        # Using basic assert
+        assert 4 == is_even() # Passes
+        assert 6 == is_even() # Passes
+        assert 5 == is_even() # Fails
+
+
         assert 4 == is_even() # Passes
         assert 2 == is_even() # Passes
         assert 5 == is_even() # Fails
@@ -56,10 +48,6 @@ class is_even(Criteria):
     def _match(self, subject) -> bool:
         return subject % 2 == 0
 
-    @property
-    def description(self) -> str:
-        return "is even"
-
 
 class is_odd(Criteria):
     """
@@ -67,12 +55,12 @@ class is_odd(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(3).matches(is_odd()) # Passes
-        assert_that(7).matches(is_odd()) # Passes
-        assert_that(4).matches(is_odd()) # Fails
 
-        # Using basic assert
+        assert 3 == is_odd() # Passes
+        assert 7 == is_odd() # Passes
+        assert 4 == is_odd() # Fails
+
+
         assert 1 == is_odd() # Passes
         assert 9 == is_odd() # Passes
         assert 8 == is_odd() # Fails
@@ -81,10 +69,6 @@ class is_odd(Criteria):
 
     def _match(self, subject) -> bool:
         return subject % 2 == 1
-
-    @property
-    def description(self) -> str:
-        return "is odd"
 
 
 class as_absolute_matches(Criteria):
@@ -99,33 +83,19 @@ class as_absolute_matches(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(-3).matches(as_absolute_matches(3)) # Passes
-        assert_that(-7).matches(as_absolute_matches(is_odd())) # Passes
-        assert_that(-4).matches(as_absolute_matches(2)) # Fails
 
-        # Using basic assert
-        assert -1 == as_absolute_matches(1) # Passes
-        assert -9 == as_absolute_matches(is_odd()) # Passes
-        assert -5 == as_absolute_matches(10) # Fails
+        assert -3 == as_absolute_matches(3) # Passes
+        assert -7 == as_absolute_matches(is_odd()) # Passes
+        assert -4 == as_absolute_matches(2) # Fails
+
         ```
     """
 
     def __init__(self, inner_criteria: Union[int, float, complex, Criteria]):
-        self.criteria = ensure_criteria(inner_criteria)
+        self.inner_criteria = ensure_criteria(inner_criteria)
 
     def _match(self, subject) -> bool:
-        return self.criteria.run_match(abs(subject))
-
-    @property
-    def description(self) -> str:
-        return self.criteria.description
-
-    def failure_message(self, subject) -> str:
-        return f"Expected abs({subject}) to match: {self.description}"
-
-    def negated_failure_message(self, subject) -> str:
-        return f"Expected abs({subject}) to not match: {self.description}"
+        return self.inner_criteria.run_match(abs(subject))
 
 
 class is_approximately_equal(Criteria):
@@ -143,20 +113,24 @@ class is_approximately_equal(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(3.0000000000000000000000000001).matches(is_approximately_equal(3)) # Passes
-        assert_that(3.01).matches(is_approximately_equal(3).with_epsilon(0.1)) # Passes
-        assert_that(3.01).matches(is_approximately_equal(3).with_epsilon(0.0001)) # Fails
 
-        # Using basic assert
         assert 3.0000000000000000000000000001 == is_approximately_equal(3) # Passes
         assert 3.01 == is_approximately_equal(3).with_epsilon(0.1) # Passes
         assert 3.01 == is_approximately_equal(3).with_epsilon(0.0001) # Fails
+
         ```
     """
 
-    def __init__(self, number):
-        self.number = number
+    @classmethod
+    def from_serialized(cls, serialized: Mapping) -> Criteria:
+        value = serialized["value"]
+        criteria = cls(value)
+
+        criteria.with_epsilon(serialized["epsilon"])
+        return criteria
+
+    def __init__(self, value):
+        self.value = value
         self.epsilon = 1e-10
 
     def with_epsilon(self, epsilon):
@@ -164,11 +138,7 @@ class is_approximately_equal(Criteria):
         return self
 
     def _match(self, subject) -> bool:
-        return abs(subject - self.number) < self.epsilon
-
-    @property
-    def description(self) -> str:
-        return f"~= {self.number}; with epsilon {self.epsilon}"
+        return abs(subject - self.value) < self.epsilon
 
 
 class is_positive(Criteria):
@@ -177,12 +147,12 @@ class is_positive(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(1).matches(is_positive()) # Passes
-        assert_that(0).matches(is_positive()) # Fails
-        assert_that(-1).matches(is_positive()) # Fails
 
-        # Using basic assert
+        assert 1 == is_positive() # Passes
+        assert 0 == is_positive() # Fails
+        assert -1 == is_positive() # Fails
+
+
         assert 1 == is_positive() # Passes
         assert 0 == is_positive() # Fails
         assert -1 == is_positive() # Fails
@@ -192,10 +162,6 @@ class is_positive(Criteria):
     def _match(self, subject) -> bool:
         return subject > 0
 
-    @property
-    def description(self) -> str:
-        return "is positive"
-
 
 class is_non_negative(Criteria):
     """
@@ -203,12 +169,12 @@ class is_non_negative(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(1).matches(is_non_negative()) # Passes
-        assert_that(0).matches(is_non_negative()) # Passes
-        assert_that(-1).matches(is_non_negative()) # Fails
 
-        # Using basic assert
+        assert 1 == is_non_negative() # Passes
+        assert 0 == is_non_negative() # Passes
+        assert -1 == is_non_negative() # Fails
+
+
         assert 1 == is_non_negative() # Passes
         assert 0 == is_non_negative() # Passes
         assert -1 == is_non_negative() # Fails
@@ -218,10 +184,6 @@ class is_non_negative(Criteria):
     def _match(self, subject) -> bool:
         return subject >= 0
 
-    @property
-    def description(self) -> str:
-        return "is non-negative"
-
 
 class is_negative(Criteria):
     """
@@ -229,12 +191,12 @@ class is_negative(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(1).matches(is_negative()) # Fails
-        assert_that(0).matches(is_negative()) # Fails
-        assert_that(-1).matches(is_negative()) # Passes
 
-        # Using basic assert
+        assert 1 == is_negative() # Fails
+        assert 0 == is_negative() # Fails
+        assert -1 == is_negative() # Passes
+
+
         assert 1 == is_negative() # Fails
         assert 0 == is_negative() # Fails
         assert -1 == is_negative() # Passes
@@ -244,10 +206,6 @@ class is_negative(Criteria):
     def _match(self, subject) -> bool:
         return subject < 0
 
-    @property
-    def description(self) -> str:
-        return "is negative"
-
 
 class is_non_positive(Criteria):
     """
@@ -255,25 +213,17 @@ class is_non_positive(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(1).matches(is_non_positive()) # Fails
-        assert_that(0).matches(is_non_positive()) # Passes
-        assert_that(-1).matches(is_non_positive()) # Passes
 
-        # Using basic assert
         assert 1 == is_non_positive() # Fails
         assert 0 == is_non_positive() # Passes
         assert -1 == is_non_positive() # Passes
+
         ```
 
     """
 
     def _match(self, subject) -> bool:
         return subject <= 0
-
-    @property
-    def description(self) -> str:
-        return "is non-positive"
 
 
 class zero(Criteria):
@@ -282,12 +232,7 @@ class zero(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(1).matches(zero()) # Fails
-        assert_that(0).matches(zero()) # Passes
-        assert_that(-1).matches(zero()) # Fails
 
-        # Using basic assert
         assert 1 == zero() # Fails
         assert 0 == zero() # Passes
         assert -1 == zero() # Fails
@@ -296,10 +241,6 @@ class zero(Criteria):
 
     def _match(self, subject) -> bool:
         return subject == 0
-
-    @property
-    def description(self) -> str:
-        return "is zero"
 
 
 class approximately_zero(Criteria):
@@ -314,17 +255,23 @@ class approximately_zero(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(0.0000000000000000000000000001).matches(approximately_zero()) # Passes
-        assert_that(0.01).matches(approximately_zero().with_epsilon(0.1)) # Passes
-        assert_that(0.01).matches(approximately_zero().with_epsilon(0.0001)) # Fails
 
-        # Using basic assert
+        assert 0.0000000000000000000000000001 == approximately_zero() # Passes
+        assert 0.01 == approximately_zero().with_epsilon(0.1) # Passes
+        assert 0.01 == approximately_zero().with_epsilon(0.0001) # Fails
+
+
         assert 0.0000000000000000000000000001 == approximately_zero() # Passes
         assert 0.01 == approximately_zero().with_epsilon(0.1) # Passes
         assert 0.01 == approximately_zero().with_epsilon(0.0001) # Fails
         ```
     """
+
+    @classmethod
+    def from_serialized(cls, serialized: Mapping) -> Criteria:
+        criteria = cls()
+        criteria.with_epsilon(serialized["epsilon"])
+        return criteria
 
     def __init__(self):
         self.epsilon = 1e-10
@@ -336,10 +283,6 @@ class approximately_zero(Criteria):
     def _match(self, subject) -> bool:
         return abs(subject) < self.epsilon
 
-    @property
-    def description(self) -> str:
-        return f"is approximately zero with epsilon: {self.epsilon}"
-
 
 class is_a_perfect_square(Criteria):
     """
@@ -347,12 +290,12 @@ class is_a_perfect_square(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(4).matches(is_a_perfect_square()) # Passes
-        assert_that(9).matches(is_a_perfect_square()) # Passes
-        assert_that(3).matches(is_a_perfect_square()) # Fails
 
-        # Using basic assert
+        assert 4 == is_a_perfect_square() # Passes
+        assert 9 == is_a_perfect_square() # Passes
+        assert 3 == is_a_perfect_square() # Fails
+
+
         assert 16 == is_a_perfect_square() # Passes
         assert 1 == is_a_perfect_square() # Passes
         assert 5 == is_a_perfect_square() # Fails
@@ -362,10 +305,6 @@ class is_a_perfect_square(Criteria):
     def _match(self, subject) -> bool:
         root = int(subject**0.5)
         return root * root == subject
-
-    @property
-    def description(self) -> str:
-        return "is a perfect square"
 
 
 class is_a_power_of(Criteria):
@@ -377,33 +316,29 @@ class is_a_power_of(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(4).matches(is_a_power_of(2)) # Passes
-        assert_that(9).matches(is_a_power_of(3)) # Passes
-        assert_that(16).matches(is_a_power_of(2)) # Passes
-        assert_that(10).matches(is_a_power_of(2)) # Fails
 
-        # Using basic assert
+        assert 4 == is_a_power_of(2) # Passes
+        assert 9 == is_a_power_of(3) # Passes
+        assert 16 == is_a_power_of(2) # Passes
+        assert 10 == is_a_power_of(2) # Fails
+
+
         assert 16 == is_a_power_of(4) # Passes
         assert 1 == is_a_power_of(1) # Passes
         assert 5 == is_a_power_of(2) # Fails
         ```
     """
 
-    def __init__(self, base):
-        self.base = base
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        if self.base == 1:
+        if self.value == 1:
             return subject == 1
         power = 1
         while power < subject:
-            power *= self.base
+            power *= self.value
         return power == subject
-
-    @property
-    def description(self) -> str:
-        return f"is a power of {self.base}"
 
 
 class is_prime(Criteria):
@@ -412,12 +347,12 @@ class is_prime(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(5).matches(is_prime()) # Passes
-        assert_that(2).matches(is_prime()) # Passes
-        assert_that(9).matches(is_prime()) # Fails
 
-        # Using basic assert
+        assert 5 == is_prime() # Passes
+        assert 2 == is_prime() # Passes
+        assert 9 == is_prime() # Fails
+
+
         assert 3 == is_prime() # Passes
         assert 7 == is_prime() # Passes
         assert 4 == is_prime() # Fails
@@ -432,10 +367,6 @@ class is_prime(Criteria):
                 return False
         return True
 
-    @property
-    def description(self) -> str:
-        return "is prime"
-
 
 class is_coprime_with(Criteria):
     """
@@ -447,24 +378,20 @@ class is_coprime_with(Criteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that(5).matches(is_coprime_with(2)) # Passes
-        assert_that(10).matches(is_coprime_with(9)) # Passes
-        assert_that(9).matches(is_coprime_with(3)) # Fails
 
-        # Using basic assert
+        assert 5 == is_coprime_with(2) # Passes
+        assert 10 == is_coprime_with(9) # Passes
+        assert 9 == is_coprime_with(3) # Fails
+
+
         assert 10 == is_coprime_with(7) # Passes
         assert 9 == is_coprime_with(8) # Passes
         assert 10 == is_coprime_with(5) # Fails
         ```
     """
 
-    def __init__(self, base):
-        self.base = base
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return math.gcd(subject, self.base) == 1
-
-    @property
-    def description(self) -> str:
-        return f"is co-prime with {self.base}"
+        return math.gcd(subject, self.value) == 1

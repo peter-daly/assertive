@@ -4,8 +4,6 @@ from assertive.core import Criteria, ensure_criteria
 from assertive.criteria.utils import (
     TimesMixin,
     WrappedCriteria,
-    joined_descriptions,
-    joined_keyed_descriptions,
 )
 
 
@@ -23,16 +21,14 @@ class was_called_with(TimesMixin, Criteria):
         mock = Mock()
         mock(1, 2, a=3, b=4)
 
-        # Using assert_that
-        assert_that(mock).matches(was_called_with(1, 2, a=3)) # Passes
-        assert_that(mock).matches(was_called_with(1, 2, b=4)) # Passes
-        assert_that(mock).matches(was_called_with(is_odd(), is_even(), a=3)) # Passes
-        assert_that(mock).matches(was_called_with(is_odd(), is_even(), a=3).once()) # Passes
-        assert_that(mock).matches(was_called_with(is_odd(), is_even(), a=3).twice()) # Fails
-        assert_that(mock).matches(was_called_with(5, 3).never()) # Passes
 
-        # Using basic assert
-        assert mock = was_called_with(1, 2, a=3) # Passes
+        assert mock == was_called_with(1, 2, a=3) # Passes
+        assert mock == was_called_with(1, 2, b=4) # Passes
+        assert mock == was_called_with(is_odd(), is_even(), a=3) # Passes
+        assert mock == was_called_with(is_odd(), is_even(), a=3).once() # Passes
+        assert mock == was_called_with(is_odd(), is_even(), a=3).twice() # Fails
+        assert mock == was_called_with(5, 3).never() # Passes
+
         ```
 
     """
@@ -73,20 +69,6 @@ class was_called_with(TimesMixin, Criteria):
 
         return True
 
-    @property
-    def description(self) -> str:
-        args_str = joined_descriptions(self.expected_args)
-        kw_args_str = joined_keyed_descriptions(self.expected_kwargs)
-
-        return f"to be called with args=({args_str}), kwargs=({kw_args_str}) and call count should match {self.times_criteria.description}"
-
-    def failure_message(self, subject) -> str:
-        headline = super().failure_message(subject)
-        matching_calls_count = len(self._get_matching_calls(subject))
-        calls_message = f"Had matching calls: {matching_calls_count}"
-
-        return f"{headline}\n{calls_message}"
-
 
 class was_called_exactly_with(TimesMixin, Criteria):
     """
@@ -102,14 +84,14 @@ class was_called_exactly_with(TimesMixin, Criteria):
         mock = Mock()
         mock(1, 2, a=3, b=4)
 
-        # Using assert_that
-        assert_that(mock).matches(was_called_exactly_with(1, 2, a=3)) # Fails
-        assert_that(mock).matches(was_called_exactly_with(1, 2, a=is_odd(), b=4)) # Passes
-        assert_that(mock).matches(was_called_exactly_with(is_odd(), is_even(), a=3).never()) # Passes
-        assert_that(mock).matches(was_called_exactly_with(is_odd(), is_even(), a=3, b=4).once()) # Passes
-        assert_that(mock).matches(was_called_exactly_with(1, 2).never()) # Fails
 
-        # Using basic assert
+        assert mock == was_called_exactly_with(1, 2, a=3) # Fails
+        assert mock == was_called_exactly_with(1, 2, a=is_odd(), b=4) # Passes
+        assert mock == was_called_exactly_with(is_odd(), is_even(), a=3).never() # Passes
+        assert mock == was_called_exactly_with(is_odd(), is_even(), a=3, b=4).once() # Passes
+        assert mock == was_called_exactly_with(1, 2).never() # Fails
+
+
         assert mock = was_called_exactly_with(1, 2, a=3, b=4) # Passes
         ```
     """
@@ -154,20 +136,6 @@ class was_called_exactly_with(TimesMixin, Criteria):
 
         return True
 
-    @property
-    def description(self) -> str:
-        args_str = joined_descriptions(self.expected_args)
-        kw_args_str = joined_keyed_descriptions(self.expected_kwargs)
-
-        return f"to be called with exact args and kwargs, args=({args_str}), kwargs=({kw_args_str}) and call count should match {self.times_criteria.description}"
-
-    def failure_message(self, subject) -> str:
-        headline = super().failure_message(subject)
-        matching_calls_count = len(self._get_matching_calls(subject))
-        calls_message = f"Had matching calls: {matching_calls_count}"
-
-        return f"{headline}\n{calls_message}"
-
 
 class was_called(TimesMixin, Criteria):
     """
@@ -180,15 +148,15 @@ class was_called(TimesMixin, Criteria):
         mock(1, 2)
         mock(3, 4)
 
-        # Using assert_that
-        assert_that(mock).matches(was_called()) # Passes
-        assert_that(mock).matches(was_called().once()) # Fails
-        assert_that(mock).matches(was_called().never()) # Fails
-        assert_that(mock).matches(was_called().twice()) # Passes
-        assert_that(mock).matches(was_called().times(3)) # Fails
-        assert_that(mock).matches(was_called().at_least_times(1)) # Passes
 
-        # Using basic assert
+        assert mock == was_called() # Passes
+        assert mock == was_called().once() # Fails
+        assert mock == was_called().never() # Fails
+        assert mock == was_called().twice() # Passes
+        assert mock == was_called().times(3) # Fails
+        assert mock == was_called().at_least_times(1) # Passes
+
+
         assert mock = was_called() # Passes
         ```
     """
@@ -198,15 +166,6 @@ class was_called(TimesMixin, Criteria):
 
     def _match(self, subject: Mock):
         return self.times_criteria.run_match(subject.call_count)
-
-    @property
-    def description(self) -> str:
-        return f"to be called number of times: {self.times_criteria.description}"
-
-    def failure_message(self, subject) -> str:
-        headline = super().failure_message(subject)
-        info = f"Called {subject.call_count} times"
-        return f"{headline}\n{info}"
 
 
 class was_called_once(WrappedCriteria):
@@ -223,11 +182,11 @@ class was_called_once(WrappedCriteria):
         mock2(1, 2)
         mock2(3, 4)
 
-        # Using assert_that
-        assert_that(mock1).matches(was_called_once()) # Passes
-        assert_that(mock2).matches(was_called_once()) # Fails
 
-        # Using basic assert
+        assert mock1 == was_called_once() # Passes
+        assert mock2 == was_called_once() # Fails
+
+
         assert mock1 == was_called_once() # Passes
         assert mock2 == was_called_once() # Fails
         ```
@@ -252,13 +211,10 @@ class was_called_once_with(WrappedCriteria):
         mock(1, 2)
         mock(3, 4)
 
-        # Using assert_that
-        assert_that(mock).matches(was_called_once_with(1, 2)) # Passes
-        assert_that(mock).matches(was_called_once_with(4, 5)) # Fails
 
-        # Using basic assert
         assert mock == was_called_once_with(1, 2) # Passes
-        assert mock == was_called_once_with(6, 7) # Fails
+        assert mock == was_called_once_with(4, 5) # Fails
+
         ```
     """
 
@@ -280,13 +236,10 @@ class was_called_once_exactly_with(WrappedCriteria):
         mock = Mock()
         mock(1, 2, a=1, b=2)
 
-        # Using assert_that
-        assert_that(mock).matches(was_called_once_exactly_with(1, 2, a=1, b=2)) # Passes
-        assert_that(mock).matches(was_called_once_exactly_with(1, 2, a=1)) # Fails
 
-        # Using basic assert
         assert mock == was_called_once_exactly_with(1, 2, a=1, b=2) # Passes
         assert mock == was_called_once_exactly_with(1, 2, a=1) # Fails
+
         ```
     """
 
@@ -306,13 +259,10 @@ class was_not_called(WrappedCriteria):
         mock1 = Mock()
         mock1()
 
-        # Using assert_that
-        assert_that(mock0).matches(was_not_called()) # Passes
-        assert_that(mock1).matches(was_not_called()) # Fails
 
-        # Using basic assert
         assert mock0 == was_not_called() # Passes
         assert mock1 == was_not_called() # Fails
+
         ```
     """
 
@@ -334,14 +284,11 @@ class was_not_called_with(WrappedCriteria):
         mock = Mock()
         mock(1, 2)
 
-        # Using assert_that
-        assert_that(mock).matches(was_not_called_with(3, 4)) # Passes
-        assert_that(mock).matches(was_not_called_with(1, 2)) # Fails
-        assert_that(mock).matches(was_not_called_with(is_odd(), is_even())) # Fails
 
-        # Using basic assert
         assert mock == was_not_called_with(3, 4) # Passes
         assert mock == was_not_called_with(1, 2) # Fails
+        assert mock == was_not_called_with(is_odd(), is_even()) # Passes
+
         ```
     """
 
@@ -363,14 +310,11 @@ class was_not_called_exactly_with(WrappedCriteria):
         mock = Mock()
         mock(1, 2, a=3, b=4)
 
-        # Using assert_that
-        assert_that(mock).matches(was_not_called_exactly_with(1, 2)) # Passes
-        assert_that(mock).matches(was_not_called_exactly_with(1, 2, a=3, b=4)) # Fails
-        assert_that(mock).matches(was_not_called_exactly_with(is_odd(), 2, a=3, b=is_even())) # Fails
 
-        # Using basic assert
-        assert mock == was_not_called_exactly_with(1, 2, a=3) # Passes
+        assert mock == was_not_called_exactly_with(1, 2) # Passes
         assert mock == was_not_called_exactly_with(1, 2, a=3, b=4) # Fails
+        assert mock == was_not_called_exactly_with(is_odd(), 2, a=3, b=is_even()) # Fails
+
         ```
     """
 

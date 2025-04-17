@@ -1,45 +1,12 @@
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from typing import Any, final
 
 
 def ensure_criteria(value: Any) -> "Criteria":
     if isinstance(value, Criteria):
         return value
-    return _default_ensured_criteria(value)
-
-
-class Assertion:
-    """
-    Represents an assertion that can be made on a subject.
-
-    Args:
-        subject: The subject on which the assertion is made.
-
-    Methods:
-        matches(comparison: Any): Asserts that the subject matches the provided criteria.
-        does_not_match(comparison: Any): Asserts that the subject does not match the provided criteria.
-    """
-
-    def __init__(self, subject):
-        self._subject = subject
-
-    def matches(self, comparison: Any):
-        """Asserts that the subject matches the provided criteria."""
-        criteria = ensure_criteria(comparison)
-        if not criteria.run_match(self._subject):
-            failure_msg = criteria.failure_message(self._subject)
-            raise AssertionError(failure_msg)
-
-    def does_not_match(self, comparison: Any):
-        """Asserts that the subject does not match the provided criteria."""
-        criteria = ensure_criteria(comparison)
-        if not criteria.run_negated_match(self._subject):
-            failure_msg = criteria.negated_failure_message(self._subject)
-            raise AssertionError(failure_msg)
-
-
-def assert_that(subject):
-    return Assertion(subject)
+    return is_eq(value)
 
 
 class Criteria(ABC):
@@ -48,6 +15,21 @@ class Criteria(ABC):
 
     Subclasses of `Criteria` should override the `_match` method to determine if the subject matches the criteria.
     """
+
+    def to_serialized(self) -> Mapping:
+        """
+        Serializes the criteria into a dictionary representation.
+        This method should be overridden by subclasses to provide custom serialization.
+        """
+        return self.__dict__
+
+    @classmethod
+    def from_serialized(cls, serialized: Mapping) -> "Criteria":
+        """
+        Deserializes the criteria from a dictionary representation.
+        This method should be overridden by subclasses to provide custom deserialization.
+        """
+        return cls(**serialized)
 
     def _before_run(self, subject):
         pass
@@ -87,47 +69,19 @@ class Criteria(ABC):
         Returns:
             bool: True if the subject does not match, False otherwise.
         """
-        return not self._match(subject)
-
-    @property
-    @abstractmethod
-    def description(self) -> str: ...
-
-    def failure_message(self, subject) -> str:
-        """
-        Generates a message to display when an assertion fails.
-
-        Args:
-            subject: The object that failed to match this criteria.
-
-        Returns:
-            str: A message explaining why the match failed.
-        """
-        return f"Expected {subject} to match: {self.description}"
-
-    def negated_failure_message(self, subject) -> str:
-        """
-        Generates a message to display when a negated assertion fails.
-
-        Args:
-            subject: The object that incorrectly matched this criteria.
-
-        Returns:
-            str: A message explaining why the negated match failed.
-        """
-        return f"Expected {subject} to not match: {self.description}"
+        return not self.run_match(subject)
 
     def __and__(self, other):
-        return _AndCriteria(self, ensure_criteria(other))
+        return AndCriteria([self, ensure_criteria(other)])
 
     def __or__(self, other):
-        return _OrCriteria(self, ensure_criteria(other))
+        return OrCriteria([self, ensure_criteria(other)])
 
     def __xor__(self, other):
-        return _XorCriteria(self, ensure_criteria(other))
+        return XorCriteria(self, ensure_criteria(other))
 
     def __invert__(self):
-        return _InvertedCriteria(self)
+        return InvertedCriteria(self)
 
     def __eq__(self, other):
         return self.run_match(other)
@@ -136,38 +90,23 @@ class Criteria(ABC):
         return self.run_negated_match(other)
 
 
-class _AndCriteria(Criteria):
-    def __init__(self, left: Criteria, right: Criteria):
-        self.left = left
-        self.right = right
+class AndCriteria(Criteria):
+    def __init__(self, items: list[Criteria]):
+        self.items = items
 
     def _match(self, subject) -> bool:
-        return self.left.run_match(subject) and self.right.run_match(subject)
-
-    @property
-    def description(self) -> str:
-        return f"{self.left.description} AND {self.right.description}"
-
-    def failure_message(self, subject) -> str:
-        if not self.left._match(subject):
-            return self.left.failure_message(subject)
-        return self.right.failure_message(subject)
+        return all(criteria.run_match(subject) for criteria in self.items)
 
 
-class _OrCriteria(Criteria):
-    def __init__(self, left: Criteria, right: Criteria):
-        self.left = left
-        self.right = right
+class OrCriteria(Criteria):
+    def __init__(self, items: list[Criteria]):
+        self.items = items
 
     def _match(self, subject) -> bool:
-        return self.left.run_match(subject) or self.right.run_match(subject)
-
-    @property
-    def description(self) -> str:
-        return f"{self.left.description} OR {self.right.description}"
+        return any(items.run_match(subject) for items in self.items)
 
 
-class _XorCriteria(Criteria):
+class XorCriteria(Criteria):
     def __init__(self, left: Criteria, right: Criteria):
         self.left = left
         self.right = right
@@ -175,33 +114,21 @@ class _XorCriteria(Criteria):
     def _match(self, subject) -> bool:
         return self.left.run_match(subject) ^ self.right.run_match(subject)
 
-    @property
-    def description(self) -> str:
-        return f"{self.left.description} XOR {self.right.description}"
 
-
-class _InvertedCriteria(Criteria):
-    def __init__(self, criteria: Criteria):
-        self.criteria = criteria
+class InvertedCriteria(Criteria):
+    def __init__(self, value: Criteria):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return self.criteria.run_negated_match(subject)
+        return self.value.run_negated_match(subject)
 
     def _negated_match(self, subject) -> bool:
-        return self.criteria.run_match(subject)
-
-    @property
-    def description(self) -> str:
-        return f"INVERTED({self.criteria.description})"
+        return self.value.run_match(subject)
 
 
-class _default_ensured_criteria(Criteria):
-    def __init__(self, expected):
-        self.expected = expected
+class is_eq(Criteria):
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return subject == self.expected
-
-    @property
-    def description(self) -> str:
-        return str(self.expected)
+        return subject == self.value

@@ -1,19 +1,15 @@
 import re
+from typing import Any
 
-from assertive.core import Criteria
+from assertive.core import Criteria, ensure_criteria
 from assertive.criteria.utils import TimesMixin
+import json
 
 
 class StringCriteria(Criteria):
     def _before_run(self, subject):
         if not isinstance(subject, str):
             raise TypeError(f"{subject} needs to be a string")
-
-    def failure_message(self, subject) -> str:
-        return f"Expected '{subject}' to match: {self.description}"
-
-    def negated_failure_message(self, subject) -> str:
-        return f"Expected '{subject}' to not match: {self.description}"
 
 
 class regex(StringCriteria):
@@ -25,15 +21,11 @@ class regex(StringCriteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that("abc").matches(regex(r"abc")) # Passes
-        assert_that("abc").matches(regex(r"abc|def")) # Passes
-        assert_that("abc").matches(regex(r"def")) # Fails
 
-        # Using basic assert
         assert "abc" == regex(r"abc") # Passes
         assert "abc" == regex(r"abc|def") # Passes
         assert "abc" == regex(r"def") # Fails
+
         ```
     """
 
@@ -42,10 +34,6 @@ class regex(StringCriteria):
 
     def _match(self, subject) -> bool:
         return bool(re.match(self.pattern, subject))
-
-    @property
-    def description(self) -> str:
-        return f"regex pattern '{self.pattern}'"
 
 
 class starts_with(StringCriteria):
@@ -57,12 +45,12 @@ class starts_with(StringCriteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that("abc").matches(starts_with("a")) # Passes
-        assert_that("abc").matches(starts_with("ab")) # Passes
-        assert_that("abc").matches(starts_with("abb")) # Fails
 
-        # Using basic assert
+        assert "abc" == starts_with("a") # Passes
+        assert "abc" == starts_with("ab") # Passes
+        assert "abc" == starts_with("abb") # Fails
+
+
         assert "abc" == starts_with("a") # Passes
         assert "abc" == starts_with("ab") # Passes
         assert "abc" == starts_with("ba") # Fails
@@ -75,10 +63,6 @@ class starts_with(StringCriteria):
     def _match(self, subject: str) -> bool:
         return subject.startswith(self.prefix)
 
-    @property
-    def description(self):
-        return f"starts with '{self.prefix}'"
-
 
 class ends_with(StringCriteria):
     """
@@ -89,12 +73,6 @@ class ends_with(StringCriteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that("abc").matches(ends_with("c")) # Passes
-        assert_that("abc").matches(ends_with("bc")) # Passes
-        assert_that("abc").matches(ends_with("b")) # Fails
-
-        # Using basic assert
         assert "abc" == ends_with("c") # Passes
         assert "abc" == ends_with("bc") # Passes
         assert "abc" == ends_with("ac") # Fails
@@ -107,10 +85,6 @@ class ends_with(StringCriteria):
     def _match(self, subject: str) -> bool:
         return subject.endswith(self.suffix)
 
-    @property
-    def description(self):
-        return f"ends with '{self.suffix}'"
-
 
 class contains_substring(TimesMixin, StringCriteria):
     """
@@ -121,17 +95,6 @@ class contains_substring(TimesMixin, StringCriteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that("hello").matches(contains_substring("ell")) # Passes
-        assert_that("hello").matches(contains_substring("ll")) # Passes
-        assert_that("hello").matches(contains_substring("l")) # Passes
-        assert_that("hello").matches(contains_substring("l").twice()) # Passes
-        assert_that("hello").matches(contains_substring("ll").twice()) # Fails
-        assert_that("hello").matches(contains_substring("hell")) # Passes
-        assert_that("hello").matches(contains_substring("goodbye").never()) # Passes
-        assert_that("hello").matches(contains_substring("goodbye")) # Fails
-
-        # Using basic assert
         assert "hello" == contains_substring("ell") # Passes
         assert "hello" == contains_substring("hell") # Passes
         assert "hello" == contains_substring("goodbye") # Fails
@@ -145,6 +108,22 @@ class contains_substring(TimesMixin, StringCriteria):
     def _match(self, subject: str) -> bool:
         return self.times_criteria.run_match(subject.count(self.substring))
 
-    @property
-    def description(self):
-        return f"contains '{self.substring}' with number of times matching: {self.times_criteria.description}"
+
+class as_json_matches(StringCriteria):
+    """
+    Converts the subject to a JSON object and then checks the criteria.
+    Args:
+        criteria: The criteria to compare the JSON object against.
+    Example:
+        ```python
+        assert '{"key": "value"}' == as_json_matches({"key": "value"}) # Passes
+        assert '{"key": "value"}' == as_json_matches({"key": "other_value"}) # Fails
+        ```
+    """
+
+    def __init__(self, inner_criteria: Criteria | Any):
+        self.inner_criteria = ensure_criteria(inner_criteria)
+
+    def _match(self, subject: str) -> bool:
+        parsed_json = json.loads(subject)
+        return self.inner_criteria.run_match(parsed_json)

@@ -2,11 +2,6 @@ from collections.abc import Mapping
 from typing import Any
 
 from assertive.core import Criteria, ensure_criteria
-from assertive.criteria.utils import (
-    get_failures_summary,
-    joined_descriptions,
-    joined_keyed_descriptions,
-)
 
 
 class MappingCriteria(Criteria):
@@ -24,11 +19,11 @@ class has_key_values(MappingCriteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that({"a": 1, "b": 2}).matches(has_key_values({"a": 1})) # Passes
-        assert_that({"a": 1, "b": 2}).matches(has_key_values({"a": is_odd()})) # Passes
 
-        # Using basic assert
+        assert {"a": 1, "b": 2} == has_key_values({"a": 1}) # Passes
+        assert {"a": 1, "b": 2} == has_key_values({"a": is_odd()}) # Passes
+
+
         assert {"a": 1, "b": 2} == has_key_values({"a": 1}) # Passes
         ```
 
@@ -37,32 +32,16 @@ class has_key_values(MappingCriteria):
     def __init__(self, key_values: Mapping):
         self.key_values = {k: ensure_criteria(v) for k, v in key_values.items()}
 
-    def _get_failures(self, subject: Mapping):
-        failures = {}
-
+    def _match(self, subject: Mapping):
         for name, criteria in self.key_values.items():
             if name not in subject:
-                failures[name] = "not found"
+                return False
 
             value = subject[name]
-            if not criteria._match(value):
-                failures[name] = criteria.failure_message(value)
-        return failures
+            if not criteria.run_match(value):
+                return False
 
-    def _match(self, subject: Mapping):
-        failures = self._get_failures(subject)
-        return not failures
-
-    @property
-    def description(self):
-        return f"has key values: {{{joined_keyed_descriptions(self.key_values)}}}"
-
-    def failure_message(self, subject) -> str:
-        headline = super().failure_message(subject)
-        failures = self._get_failures(subject)
-        failures_summary = get_failures_summary(failures)
-
-        return headline + "\n" + failures_summary
+        return True
 
 
 class has_key_and_value(has_key_values):
@@ -75,11 +54,11 @@ class has_key_and_value(has_key_values):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that({"a": 1, "b": 2}).matches(has_key_and_value("a", 1)) # Passes
-        assert_that({"a": 1, "b": 2}).matches(has_key_and_value("a", is_odd())) # Passes
 
-        # Using basic assert
+        assert {"a": 1, "b": 2} == has_key_and_value("a", 1) # Passes
+        assert {"a": 1, "b": 2} == has_key_and_value("a", is_odd()) # Passes
+
+
         assert {"a": 1, "b": 2} == has_key_and_value("a", 1) # Passes
         ```
 
@@ -98,11 +77,11 @@ class has_exact_key_values(has_key_values):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that({"a": 1, "b": 2}).matches(has_exact_key_values({"a": 1, "b": 2})) # Passes
-        assert_that({"a": 1, "b": 2}).matches(has_exact_key_values({"a": is_odd()})) # Fails
 
-        # Using basic assert
+        assert {"a": 1, "b": 2} == has_exact_key_values({"a": 1, "b": 2}) # Passes
+        assert {"a": 1, "b": 2} == has_exact_key_values({"a": is_odd()}) # Fails
+
+
         assert {"a": 1, "b": 2} == has_exact_key_values({"a": is_odd(), "b": is_even()}) # Passes
         ```
     """
@@ -116,10 +95,6 @@ class has_exact_key_values(has_key_values):
 
         return super()._match(subject)
 
-    @property
-    def description(self):
-        return f"has exact key values: {{{joined_keyed_descriptions(self.key_values)}}}"
-
 
 class contains_keys(MappingCriteria):
     """
@@ -130,11 +105,11 @@ class contains_keys(MappingCriteria):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that({"a": 1, "b": 2}).matches(contains_keys("a", "b")) # Passes
-        assert_that({"a": 1, "b": 2}).matches(contains_keys("c")) # Fails
 
-        # Using basic assert
+        assert {"a": 1, "b": 2} == contains_keys("a", "b") # Passes
+        assert {"a": 1, "b": 2} == contains_keys("c") # Fails
+
+
         assert {"a": 1, "b": 2} == contains_keys("a") # Passes
         ```
     """
@@ -145,13 +120,9 @@ class contains_keys(MappingCriteria):
     def _match(self, subject: Mapping):
         keys = subject.keys()
         for criteria in self.key_criteria:
-            if not any([criteria._match(key) for key in keys]):
+            if not any([criteria.run_match(key) for key in keys]):
                 return False
         return True
-
-    @property
-    def description(self) -> str:
-        return f"to have keys matching: [{joined_descriptions(self.key_criteria)}]"
 
 
 class contains_exact_keys(contains_keys):
@@ -163,11 +134,11 @@ class contains_exact_keys(contains_keys):
 
     Example:
         ```python
-        # Using assert_that
-        assert_that({"a": 1, "b": 2}).matches(contains_exact_keys("a", "b")) # Passes
-        assert_that({"a": 1, "b": 2}).matches(contains_exact_keys("a")) # Fails
 
-        # Using basic assert
+        assert {"a": 1, "b": 2} == contains_exact_keys("a", "b") # Passes
+        assert {"a": 1, "b": 2} == contains_exact_keys("a") # Fails
+
+
         assert {"a": 1, "b": 2} == contains_exact_keys("a", "b") # Passes
         ```
 
@@ -177,9 +148,3 @@ class contains_exact_keys(contains_keys):
         if len(subject.keys()) != len(self.key_criteria):
             return False
         return super()._match(subject)
-
-    @property
-    def description(self) -> str:
-        return (
-            f"to have exact keys matching: [{joined_descriptions(self.key_criteria)}]"
-        )
