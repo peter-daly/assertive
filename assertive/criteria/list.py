@@ -22,18 +22,15 @@ class has_length(IterableCriteria):
         assert [1, 2, 3] == has_length(3) # Passes
         assert "hello" == has_length(5) # Passes
         assert [1, 2, 3] == has_length(is_greater_than(2)) # Passes
-
-
-        assert [1, 2, 3] == has_length(3) # Passes
         ```
     """
 
-    def __init__(self, count_criteria: Union[int, Criteria]):
-        self.count_criteria = ensure_criteria(count_criteria)
+    def __init__(self, value: Union[int, Criteria]):
+        self.value = ensure_criteria(value)
 
     def _match(self, subject):
         count = len(subject)
-        return self.count_criteria.run_match(count)
+        return self.value.run_match(count)
 
 
 class is_empty(IterableCriteria):
@@ -73,6 +70,11 @@ class contains(IterableCriteria):
 
     """
 
+    @classmethod
+    def from_serialized(cls, serialized):
+        items = serialized["items"]
+        return cls(*items)
+
     def __init__(self, *items):
         self.items = [ensure_criteria(item) for item in items]
 
@@ -102,6 +104,11 @@ class contains_exactly(IterableCriteria):
         ```
 
     """
+
+    @classmethod
+    def from_serialized(cls, serialized):
+        items = serialized["items"]
+        return cls(*items)
 
     def __init__(self, *items):
         self.items = [ensure_criteria(item) for item in items]

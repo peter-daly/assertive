@@ -1,5 +1,5 @@
 import math
-from typing import Union
+from typing import Mapping, Union
 
 from assertive.core import Criteria, ensure_criteria
 
@@ -15,20 +15,16 @@ class is_multiple_of(Criteria):
         assert 6 == is_multiple_of(2) # Passes
         assert 5 == is_multiple_of(2) # Fails
 
-
-        assert 4 == is_multiple_of(2) # Passes
-        assert 2 == is_multiple_of(2) # Passes
-        assert 5 == is_multiple_of(2) # Fails
         ```
     """
 
-    def __init__(self, number: int):
-        self.number = number
+    def __init__(self, value: int):
+        self.value = value
 
     def _match(self, subject) -> bool:
         if subject == 0:
             return False
-        return self.number % subject == 0
+        return self.value % subject == 0
 
 
 class is_even(Criteria):
@@ -92,18 +88,14 @@ class as_absolute_matches(Criteria):
         assert -7 == as_absolute_matches(is_odd()) # Passes
         assert -4 == as_absolute_matches(2) # Fails
 
-
-        assert -1 == as_absolute_matches(1) # Passes
-        assert -9 == as_absolute_matches(is_odd() # Passes
-        assert -5 == as_absolute_matches(10) # Fails
         ```
     """
 
     def __init__(self, inner_criteria: Union[int, float, complex, Criteria]):
-        self.criteria = ensure_criteria(inner_criteria)
+        self.inner_criteria = ensure_criteria(inner_criteria)
 
     def _match(self, subject) -> bool:
-        return self.criteria.run_match(abs(subject))
+        return self.inner_criteria.run_match(abs(subject))
 
 
 class is_approximately_equal(Criteria):
@@ -126,15 +118,19 @@ class is_approximately_equal(Criteria):
         assert 3.01 == is_approximately_equal(3).with_epsilon(0.1) # Passes
         assert 3.01 == is_approximately_equal(3).with_epsilon(0.0001) # Fails
 
-
-        assert 3.0000000000000000000000000001 == is_approximately_equal(3) # Passes
-        assert 3.01 == is_approximately_equal(3).with_epsilon(0.1) # Passes
-        assert 3.01 == is_approximately_equal(3).with_epsilon(0.0001) # Fails
         ```
     """
 
-    def __init__(self, number):
-        self.number = number
+    @classmethod
+    def from_serialized(cls, serialized: Mapping) -> Criteria:
+        value = serialized["value"]
+        criteria = cls(value)
+
+        criteria.with_epsilon(serialized["epsilon"])
+        return criteria
+
+    def __init__(self, value):
+        self.value = value
         self.epsilon = 1e-10
 
     def with_epsilon(self, epsilon):
@@ -142,7 +138,7 @@ class is_approximately_equal(Criteria):
         return self
 
     def _match(self, subject) -> bool:
-        return abs(subject - self.number) < self.epsilon
+        return abs(subject - self.value) < self.epsilon
 
 
 class is_positive(Criteria):
@@ -271,6 +267,12 @@ class approximately_zero(Criteria):
         ```
     """
 
+    @classmethod
+    def from_serialized(cls, serialized: Mapping) -> Criteria:
+        criteria = cls()
+        criteria.with_epsilon(serialized["epsilon"])
+        return criteria
+
     def __init__(self):
         self.epsilon = 1e-10
 
@@ -327,15 +329,15 @@ class is_a_power_of(Criteria):
         ```
     """
 
-    def __init__(self, base):
-        self.base = base
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        if self.base == 1:
+        if self.value == 1:
             return subject == 1
         power = 1
         while power < subject:
-            power *= self.base
+            power *= self.value
         return power == subject
 
 
@@ -388,8 +390,8 @@ class is_coprime_with(Criteria):
         ```
     """
 
-    def __init__(self, base):
-        self.base = base
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return math.gcd(subject, self.base) == 1
+        return math.gcd(subject, self.value) == 1

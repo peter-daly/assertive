@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from typing import Any, final
 
 
 def ensure_criteria(value: Any) -> "Criteria":
     if isinstance(value, Criteria):
         return value
-    return _default_ensured_criteria(value)
+    return is_eq(value)
 
 
 class Criteria(ABC):
@@ -14,6 +15,21 @@ class Criteria(ABC):
 
     Subclasses of `Criteria` should override the `_match` method to determine if the subject matches the criteria.
     """
+
+    def to_serialized(self) -> Mapping:
+        """
+        Serializes the criteria into a dictionary representation.
+        This method should be overridden by subclasses to provide custom serialization.
+        """
+        return self.__dict__
+
+    @classmethod
+    def from_serialized(cls, serialized: Mapping) -> "Criteria":
+        """
+        Deserializes the criteria from a dictionary representation.
+        This method should be overridden by subclasses to provide custom deserialization.
+        """
+        return cls(**serialized)
 
     def _before_run(self, subject):
         pass
@@ -75,19 +91,19 @@ class Criteria(ABC):
 
 
 class AndCriteria(Criteria):
-    def __init__(self, criteras: list[Criteria]):
-        self.criterias = criteras
+    def __init__(self, items: list[Criteria]):
+        self.items = items
 
     def _match(self, subject) -> bool:
-        return all(criteria.run_match(subject) for criteria in self.criterias)
+        return all(criteria.run_match(subject) for criteria in self.items)
 
 
 class OrCriteria(Criteria):
-    def __init__(self, criterias: list[Criteria]):
-        self.criterias = criterias
+    def __init__(self, items: list[Criteria]):
+        self.items = items
 
     def _match(self, subject) -> bool:
-        return any(criteria.run_match(subject) for criteria in self.criterias)
+        return any(items.run_match(subject) for items in self.items)
 
 
 class XorCriteria(Criteria):
@@ -100,19 +116,19 @@ class XorCriteria(Criteria):
 
 
 class InvertedCriteria(Criteria):
-    def __init__(self, criteria: Criteria):
-        self.criteria = criteria
+    def __init__(self, value: Criteria):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return self.criteria.run_negated_match(subject)
+        return self.value.run_negated_match(subject)
 
     def _negated_match(self, subject) -> bool:
-        return self.criteria.run_match(subject)
+        return self.value.run_match(subject)
 
 
-class _default_ensured_criteria(Criteria):
-    def __init__(self, expected):
-        self.expected = expected
+class is_eq(Criteria):
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return subject == self.expected
+        return subject == self.value

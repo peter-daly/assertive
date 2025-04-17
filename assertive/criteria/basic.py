@@ -1,29 +1,34 @@
-from typing import Union
+from typing import Mapping, Union
+
 
 from assertive.core import (
     Criteria,
-    _default_ensured_criteria,
     ensure_criteria,
+    is_eq,  # noqa: F401
 )
 
 
-class is_eq(_default_ensured_criteria):
+class is_neq(Criteria):
     """
-    Checks subject is equal to the expected value
+    Checks subject is not equal to the expected value
 
     Args:
-        expected: The expected value to compare against
+        value: The expected value to compare against
 
     Example:
         ```python
 
-        assert 2 == is_eq(1) # Fails
-        assert 1 == is_eq(1) # Passes
+        assert 2 == is_neq(1) # Passes
+        assert 1 == is_neq(1) # Fails
 
         ```
     """
 
-    pass
+    def __init__(self, value):
+        self.value = value
+
+    def _match(self, subject) -> bool:
+        return subject != self.value
 
 
 class is_gt(Criteria):
@@ -31,7 +36,7 @@ class is_gt(Criteria):
     Checks subject is greater than expected value
 
     Args:
-        expected: The expected value to compare against
+        value: The expected value to compare against
 
     Example:
         ```python
@@ -43,11 +48,11 @@ class is_gt(Criteria):
 
     """
 
-    def __init__(self, expected):
-        self.expected = expected
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return subject > self.expected
+        return subject > self.value
 
 
 class is_gte(Criteria):
@@ -55,7 +60,7 @@ class is_gte(Criteria):
     Checks subject is greater or equal than expected value
 
     Args:
-        expected: The expected value to compare against
+        value: The expected value to compare against
 
     Example:
         ```python
@@ -66,11 +71,11 @@ class is_gte(Criteria):
         ```
     """
 
-    def __init__(self, expected):
-        self.expected = expected
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return subject >= self.expected
+        return subject >= self.value
 
 
 class is_lt(Criteria):
@@ -78,7 +83,7 @@ class is_lt(Criteria):
     Checks subject is less than expected value
 
     Args:
-        expected: The expected value to compare against
+        value: The expected value to compare against
 
     Example:
         ```python
@@ -89,11 +94,11 @@ class is_lt(Criteria):
 
     """
 
-    def __init__(self, expected):
-        self.expected = expected
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return subject < self.expected
+        return subject < self.value
 
 
 class is_lte(Criteria):
@@ -101,7 +106,7 @@ class is_lte(Criteria):
     Checks subject is less or equal than expected value
 
     Args:
-        expected: The expected value to compare against
+        value: The expected value to compare against
 
     Example:
         ```python
@@ -113,11 +118,11 @@ class is_lte(Criteria):
 
     """
 
-    def __init__(self, expected):
-        self.expected = expected
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return subject <= self.expected
+        return subject <= self.value
 
 
 class is_between(Criteria):
@@ -141,6 +146,20 @@ class is_between(Criteria):
 
         ```
     """
+
+    @classmethod
+    def from_serialized(cls, serialized: Mapping) -> Criteria:
+        criteria = cls(
+            serialized["lower"],
+            serialized["upper"],
+        )
+
+        if serialized.get("is_inclusive", True):
+            criteria.inclusive()
+        else:
+            criteria.exclusive()
+
+        return criteria
 
     def __init__(self, lower, upper):
         self.lower = lower
@@ -172,7 +191,7 @@ class is_same_instance_as(Criteria):
     Checks that the subject is the same instance as the expected value
 
     Args:
-        expected: The expected value to compare against
+        value: The expected value to compare against
 
     Example:
         ```python
@@ -189,11 +208,11 @@ class is_same_instance_as(Criteria):
         ```
     """
 
-    def __init__(self, expected):
-        self.expected = expected
+    def __init__(self, value):
+        self.value = value
 
     def _match(self, subject) -> bool:
-        return subject is self.expected
+        return subject is self.value
 
 
 class as_string_matches(Criteria):
