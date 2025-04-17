@@ -1,7 +1,7 @@
 from assertive.criteria.basic import is_between, is_gt, is_lt
 from assertive.criteria.mapping import has_exact_key_values, has_key_values
 from assertive.criteria.numeric import is_even
-from assertive.criteria.string import regex, as_json_matches
+from assertive.criteria.string import ignore_case, regex, as_json_matches
 from assertive.criteria.list import contains
 from assertive.serialize import deserialize, serialize
 
@@ -177,6 +177,21 @@ def test_very_nested_criteria():
         "key2": {"keya": 5, "keyb": 21},
         "key3": "hello world",
     }
+
+    serialized = serialize(criteria)
+    deserialized = deserialize(serialized)
+    assert deserialized == item
+
+
+def test_ignore_case():
+    """
+    Test the serialization of basic criteria
+    """
+
+    item = 4
+    criteria = ignore_case("Hello")
+
+    item = "hello"
 
     serialized = serialize(criteria)
     deserialized = deserialize(serialized)

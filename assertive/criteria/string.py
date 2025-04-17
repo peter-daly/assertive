@@ -109,6 +109,28 @@ class contains_substring(TimesMixin, StringCriteria):
         return self.times_criteria.run_match(subject.count(self.substring))
 
 
+class ignore_case(StringCriteria):
+    """
+    A criteria that checks if a string matches another string in a case-insensitive manner.
+
+    Args:
+        other (str): The string to compare against.
+
+    Example:
+        ```python
+        assert "abc" == case_insensitive("ABC") # Passes
+        assert "abc" == case_insensitive("aBc") # Passes
+        assert "abc" == case_insensitive("def") # Fails
+        ```
+    """
+
+    def __init__(self, value: str):
+        self.value = value
+
+    def _match(self, subject: str) -> bool:
+        return subject.lower() == self.value.lower()
+
+
 class as_json_matches(StringCriteria):
     """
     Converts the subject to a JSON object and then checks the criteria.

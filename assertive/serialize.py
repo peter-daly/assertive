@@ -18,7 +18,7 @@ from .criteria.basic import (
     is_between,
 )
 
-from .criteria.string import as_json_matches, regex
+from .criteria.string import as_json_matches, ignore_case, regex
 
 from .criteria.list import (
     contains,
@@ -51,6 +51,7 @@ SERIALIZABLE_CRITERIA = bidict(
         "$exact_key_values": has_exact_key_values,
         "$even": is_even,
         "$odd": is_odd,
+        "$ignore_case": ignore_case,
     }
 )
 

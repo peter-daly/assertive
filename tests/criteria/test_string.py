@@ -3,6 +3,7 @@ from assertive.criteria.exception import raises_exception
 from assertive.criteria.string import (
     contains_substring,
     ends_with,
+    ignore_case,
     regex,
     starts_with,
 )
@@ -69,3 +70,25 @@ def test_contains_substring_matches_pass():
 def test_contains_substring_does_not_match_pass():
     assert "abc" != contains_substring("b").never
     assert "abc" != contains_substring("hello")
+
+
+# ignore_case
+
+
+def test_ignore_case_matches_pass():
+    assert "abc" == ignore_case("ABC")
+    assert "Hello World" == ignore_case("hello world")
+    assert "MiXeD CaSe" == ignore_case("mixed case")
+
+
+def test_ignore_case_does_not_match_pass():
+    assert "abc" != ignore_case("def")
+    assert "Hello" != ignore_case("Goodbye")
+
+
+def test_ignore_case_type_failure():
+    with raises_exception(TypeError):
+        assert 123 == ignore_case("123")
+
+    with raises_exception(TypeError):
+        assert 123 != ignore_case("456")
