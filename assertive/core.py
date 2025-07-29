@@ -16,7 +16,7 @@ class Criteria(ABC):
     Subclasses of `Criteria` should override the `_match` method to determine if the subject matches the criteria.
     """
 
-    def to_serialized(self) -> Mapping:
+    def to_serialized(self) -> dict:
         """
         Serializes the criteria into a dictionary representation.
         This method should be overridden by subclasses to provide custom serialization.
@@ -24,7 +24,7 @@ class Criteria(ABC):
         return self.__dict__
 
     @classmethod
-    def from_serialized(cls, serialized: Mapping) -> "Criteria":
+    def from_serialized(cls, serialized: dict) -> "Criteria":
         """
         Deserializes the criteria from a dictionary representation.
         This method should be overridden by subclasses to provide custom deserialization.
