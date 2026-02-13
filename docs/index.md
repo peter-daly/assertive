@@ -1,23 +1,45 @@
 # Assertive
 
-Assertive is a testing library that provides declarative assertions to you python tests.
+Assertive is a lightweight Python assertion library for writing declarative, composable test expectations.
 
+## Getting started
 
+Install:
 
-## Criteria
-Criteria are declarative statements that can be used with assert statements to give a richer test experience.
-
-```python
-assert 5 == is_greater_than(4)
-assert 5 == is_odd()
-assert 5 != is_even()
+```bash
+pip install assertive
 ```
 
-Criteria can also be composed with logical operators to give a richer experience in writing tests
+Use criteria objects directly with `assert`:
 
 ```python
-assert 5 == is_greater_than(4) & is_less_than(6) # Using AND
-assert 5 == is_even() | is_less_than(6) # Using OR
-assert 5 == is_even() ^ is_odd() # Using XOR
-assert 5 == ~is_even()  # Using INVERT
+from assertive import (
+    contains,
+    has_key_values,
+    is_even,
+    is_gt,
+    is_lt,
+    regex,
+)
+
+assert 5 == is_gt(4)
+assert 5 == is_gt(4) & is_lt(6)
+assert 4 == is_even()
+assert "hello" == regex(r"^h.*o$")
+assert [1, 2, 3] == contains(2)
+assert {"name": "Ada", "age": 37} == has_key_values({"name": "Ada"})
 ```
+
+You can compose criteria with logical operators:
+
+```python
+assert 5 == is_gt(4) & is_lt(6)  # AND
+assert 5 == is_even() | is_lt(6)  # OR
+assert 5 == is_even() ^ is_lt(6)  # XOR
+assert 5 == ~is_even()  # NOT
+```
+
+## Next steps
+
+- Browse built-in criteria: [Criteria reference](criteria/)
+- Build your own criteria: [Writing custom criteria](criteria/writing-custom-criteria/)
