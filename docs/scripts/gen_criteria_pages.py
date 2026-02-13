@@ -9,7 +9,7 @@ criteria_path = root.joinpath("assertive/criteria")
 nav = mkdocs_gen_files.Nav()  # type: ignore
 
 criteria_file_path = "criteria.md"
-
+criteria_modules: list[str] = []
 
 for path in sorted(criteria_path.glob("*.py")):
     module_path = path.relative_to(root).with_suffix("")
@@ -23,12 +23,15 @@ for path in sorted(criteria_path.glob("*.py")):
 
     if module_name in ("__init__", "__main__", "utils"):
         continue
+
+    criteria_modules.append(module_name)
     nav["in-built", module_name] = nav_path.as_posix()
 
     with mkdocs_gen_files.open(full_doc_path, "w") as fd:
         ident = ".".join(module_parts)
         fd.write(f"::: {ident}")
-        fd.write("""
+        fd.write(
+            """
     options:
         show_root_heading: true
         show_symbol_type_toc: true
@@ -36,13 +39,20 @@ for path in sorted(criteria_path.glob("*.py")):
         members_order: source
     rendering:
         show_source: true
-""")
-
-    with mkdocs_gen_files.open(criteria_file_path, "a") as cd:
-        cd.write(f"- [{module_name}]({module_name})")
-        cd.write("\n")
+"""
+        )
 
     mkdocs_gen_files.set_edit_path(full_doc_path, path.relative_to(root))
+
+with mkdocs_gen_files.open(criteria_file_path, "w") as cd:
+    cd.write("# Criteria\n\n")
+    cd.write("Assertive ships with built-in criteria modules for common testing domains.\n\n")
+    cd.write("## In-built modules\n\n")
+    for module_name in criteria_modules:
+        cd.write(f"- [{module_name}](criteria/in-built/{module_name}/)\n")
+
+    cd.write("\n## Custom criteria\n\n")
+    cd.write("- [Writing custom criteria](criteria/writing-custom-criteria/)\n")
 
 with mkdocs_gen_files.open("criteria/SUMMARY.md", "w") as nav_file:
     nav_file.writelines(nav.build_literate_nav())
