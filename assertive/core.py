@@ -20,7 +20,7 @@ class Criteria(ABC):
         Serializes the criteria into a dictionary representation.
         This method should be overridden by subclasses to provide custom serialization.
         """
-        return self.__dict__
+        return self.__dict__  # pyright: ignore[reportReturnType]
 
     @classmethod
     def from_serialized(cls, serialized: dict) -> "Criteria":

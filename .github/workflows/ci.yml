@@ -11,6 +11,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - { python: "3.14", os: "ubuntu-latest", session: "tests" }
+          - { python: "3.13", os: "ubuntu-latest", session: "tests" }
           - { python: "3.12", os: "ubuntu-latest", session: "tests" }
           - { python: "3.11", os: "ubuntu-latest", session: "tests" }
           - { python: "3.10", os: "ubuntu-latest", session: "tests" }
@@ -22,10 +24,10 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4.6.0
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
 
