@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths:
       - "docs/**"
-      - "mkdocs.yaml"
+      - "mkdocs.yml"
 
 permissions:
   id-token: write # This is required for actions/deploy-pages

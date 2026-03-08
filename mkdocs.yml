@@ -1,16 +1,37 @@
 site_name: Assertive
+site_description: Declarative assertion criteria for Python tests
 site_url: https://example.com/
 
-theme: material
+repo_name: peter-daly/assertive
+repo_url: https://github.com/peter-daly/assertive
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Criteria:
+      - What Is Criteria?: criteria/what-is-criteria.md
+      - Built-in Criteria: criteria/built-ins.md
+      - Composition: criteria/composition.md
+      - Writing Custom Criteria: criteria/writing-custom-criteria.md
+  - API Reference:
+      - Core: reference/core.md
+      - Criteria Modules:
+          - Basic: reference/criteria/basic.md
+          - Numeric: reference/criteria/numeric.md
+          - String: reference/criteria/string.md
+          - Iterable: reference/criteria/list.md
+          - Mapping: reference/criteria/mapping.md
+          - Object: reference/criteria/object.md
+          - Mock: reference/criteria/mock.md
+          - Exception: reference/criteria/exception.md
 
 validation:
   omitted_files: warn
   absolute_links: warn
   unrecognized_links: warn
-
-nav:
-  - Home: index.md
-  - Criteria: criteria/
 
 markdown_extensions:
   - attr_list
@@ -25,8 +46,3 @@ markdown_extensions:
 
 plugins:
   - mkdocstrings
-  - gen-files:
-      scripts:
-        - docs/scripts/gen_criteria_pages.py
-  - literate-nav:
-      nav_file: SUMMARY.md

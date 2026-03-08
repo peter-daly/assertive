@@ -1,4 +1,4 @@
-# Writing custom criteria
+# Writing Custom Criteria
 
 Assertive includes many built-in criteria, but you can create your own when you want domain-specific assertions.
 
