@@ -119,5 +119,7 @@ jobs:
     name: Release
     needs: check-version
     if: needs.check-version.outputs.should_release == 'true'
+    permissions:
+      contents: write
     uses: ./.github/workflows/release.yml
     secrets: inherit
