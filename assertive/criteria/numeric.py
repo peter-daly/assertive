@@ -6,15 +6,18 @@ from assertive.core import Criteria, ensure_criteria
 
 class is_multiple_of(Criteria):
     """
-    Checks if the subject is a multiple of a number
+    Match when the subject is a factor of ``value``.
+
+    In other words, this criteria checks ``value % subject == 0``.
+    This means ``is_multiple_of(12)`` matches ``1, 2, 3, 4, 6, 12``.
+
+    Args:
+        value: Number whose factors you want to match.
 
     Example:
         ```python
-
-        assert 4 == is_multiple_of(2) # Passes
-        assert 6 == is_multiple_of(2) # Passes
-        assert 5 == is_multiple_of(2) # Fails
-
+        assert 3 == is_multiple_of(12) # passes
+        assert 5 == is_multiple_of(12) # fails
         ```
     """
 
@@ -29,19 +32,12 @@ class is_multiple_of(Criteria):
 
 class is_even(Criteria):
     """
-    A criteria that checks if a number is even.
+    Match even integers.
 
     Example:
         ```python
-
-        assert 4 == is_even() # Passes
-        assert 6 == is_even() # Passes
-        assert 5 == is_even() # Fails
-
-
-        assert 4 == is_even() # Passes
-        assert 2 == is_even() # Passes
-        assert 5 == is_even() # Fails
+        assert 4 == is_even() # passes
+        assert 5 == is_even() # fails
         ```
     """
 
@@ -51,19 +47,12 @@ class is_even(Criteria):
 
 class is_odd(Criteria):
     """
-    A criteria class that checks if a number is odd.
+    Match odd integers.
 
     Example:
         ```python
-
-        assert 3 == is_odd() # Passes
-        assert 7 == is_odd() # Passes
-        assert 4 == is_odd() # Fails
-
-
-        assert 1 == is_odd() # Passes
-        assert 9 == is_odd() # Passes
-        assert 8 == is_odd() # Fails
+        assert 3 == is_odd() # passes
+        assert 4 == is_odd() # fails
         ```
     """
 
@@ -73,21 +62,18 @@ class is_odd(Criteria):
 
 class as_absolute_matches(Criteria):
     """
-    A criteria that checks if the absolute value of a subject matches the inner criteria.
+    Match against ``abs(subject)`` using a nested criteria.
+
+    This is useful for assertions where sign is irrelevant.
 
     Args:
-        inner_criteria (Union[int, float, complex, Criteria]): The inner criteria to match against.
-
-    Attributes:
-        criteria (Criteria): The inner criteria.
+        inner_criteria: Value or criteria to compare with ``abs(subject)``.
 
     Example:
         ```python
-
-        assert -3 == as_absolute_matches(3) # Passes
-        assert -7 == as_absolute_matches(is_odd()) # Passes
-        assert -4 == as_absolute_matches(2) # Fails
-
+        assert -3 == as_absolute_matches(3)        # passes
+        assert -7 == as_absolute_matches(is_odd()) # passes
+        assert -4 == as_absolute_matches(2)        # fails
         ```
     """
 
@@ -100,24 +86,16 @@ class as_absolute_matches(Criteria):
 
 class is_approximately_equal(Criteria):
     """
-    A criteria class that checks if a number is approximately equal to a given value.
+    Match numeric values within an epsilon of ``value``.
 
     Args:
-        number (float): The value to compare against.
-
-    Attributes:
-        epsilon (float): The tolerance value for the approximation. Default is 1e-10.
-
-    Methods:
-        with_epsilon(epsilon): Sets the tolerance value for the approximation.
+        value: Target value for approximate comparison.
 
     Example:
         ```python
-
-        assert 3.0000000000000000000000000001 == is_approximately_equal(3) # Passes
-        assert 3.01 == is_approximately_equal(3).with_epsilon(0.1) # Passes
-        assert 3.01 == is_approximately_equal(3).with_epsilon(0.0001) # Fails
-
+        assert 3.0000000001 == is_approximately_equal(3)                    # passes
+        assert 3.01 == is_approximately_equal(3).with_epsilon(0.1)          # passes
+        assert 3.01 == is_approximately_equal(3).with_epsilon(0.0001)       # fails
         ```
     """
 
@@ -143,19 +121,13 @@ class is_approximately_equal(Criteria):
 
 class is_positive(Criteria):
     """
-    Checks if a number is positive.
+    Match numbers greater than zero.
 
     Example:
         ```python
-
-        assert 1 == is_positive() # Passes
-        assert 0 == is_positive() # Fails
-        assert -1 == is_positive() # Fails
-
-
-        assert 1 == is_positive() # Passes
-        assert 0 == is_positive() # Fails
-        assert -1 == is_positive() # Fails
+        assert 1 == is_positive()  # passes
+        assert 0 == is_positive()  # fails
+        assert -1 == is_positive() # fails
         ```
     """
 
@@ -165,19 +137,13 @@ class is_positive(Criteria):
 
 class is_non_negative(Criteria):
     """
-    Checks if a number is non-negative.
+    Match numbers greater than or equal to zero.
 
     Example:
         ```python
-
-        assert 1 == is_non_negative() # Passes
-        assert 0 == is_non_negative() # Passes
-        assert -1 == is_non_negative() # Fails
-
-
-        assert 1 == is_non_negative() # Passes
-        assert 0 == is_non_negative() # Passes
-        assert -1 == is_non_negative() # Fails
+        assert 1 == is_non_negative()  # passes
+        assert 0 == is_non_negative()  # passes
+        assert -1 == is_non_negative() # fails
         ```
     """
 
@@ -187,19 +153,13 @@ class is_non_negative(Criteria):
 
 class is_negative(Criteria):
     """
-    Checks if a number is negative.
+    Match numbers less than zero.
 
     Example:
         ```python
-
-        assert 1 == is_negative() # Fails
-        assert 0 == is_negative() # Fails
-        assert -1 == is_negative() # Passes
-
-
-        assert 1 == is_negative() # Fails
-        assert 0 == is_negative() # Fails
-        assert -1 == is_negative() # Passes
+        assert -1 == is_negative() # passes
+        assert 0 == is_negative()  # fails
+        assert 1 == is_negative()  # fails
         ```
     """
 
@@ -209,17 +169,14 @@ class is_negative(Criteria):
 
 class is_non_positive(Criteria):
     """
-    Checks if the subject is non-positive.
+    Match numbers less than or equal to zero.
 
     Example:
         ```python
-
-        assert 1 == is_non_positive() # Fails
-        assert 0 == is_non_positive() # Passes
-        assert -1 == is_non_positive() # Passes
-
+        assert 1 == is_non_positive()  # fails
+        assert 0 == is_non_positive()  # passes
+        assert -1 == is_non_positive() # passes
         ```
-
     """
 
     def _match(self, subject) -> bool:
@@ -228,14 +185,13 @@ class is_non_positive(Criteria):
 
 class zero(Criteria):
     """
-    Checks if the subject is zero.
+    Match exactly zero.
 
     Example:
         ```python
-
-        assert 1 == zero() # Fails
-        assert 0 == zero() # Passes
-        assert -1 == zero() # Fails
+        assert 0 == zero()  # passes
+        assert 1 == zero()  # fails
+        assert -1 == zero() # fails
         ```
     """
 
@@ -245,25 +201,13 @@ class zero(Criteria):
 
 class approximately_zero(Criteria):
     """
-    A criteria class that checks if a number is approximately zero.
-
-    Attributes:
-        epsilon (float): The tolerance value for determining if a number is approximately zero.
-
-    Methods:
-        with_epsilon(epsilon): Sets the tolerance value for determining if a number is approximately zero.
+    Match numbers that are close to zero within an epsilon tolerance.
 
     Example:
         ```python
-
-        assert 0.0000000000000000000000000001 == approximately_zero() # Passes
-        assert 0.01 == approximately_zero().with_epsilon(0.1) # Passes
-        assert 0.01 == approximately_zero().with_epsilon(0.0001) # Fails
-
-
-        assert 0.0000000000000000000000000001 == approximately_zero() # Passes
-        assert 0.01 == approximately_zero().with_epsilon(0.1) # Passes
-        assert 0.01 == approximately_zero().with_epsilon(0.0001) # Fails
+        assert 1e-12 == approximately_zero()                         # passes
+        assert 0.01 == approximately_zero().with_epsilon(0.1)       # passes
+        assert 0.01 == approximately_zero().with_epsilon(0.0001)    # fails
         ```
     """
 
@@ -286,19 +230,13 @@ class approximately_zero(Criteria):
 
 class is_a_perfect_square(Criteria):
     """
-    Checks if a number is a perfect square.
+    Match positive integers that are perfect squares.
 
     Example:
         ```python
-
-        assert 4 == is_a_perfect_square() # Passes
-        assert 9 == is_a_perfect_square() # Passes
-        assert 3 == is_a_perfect_square() # Fails
-
-
-        assert 16 == is_a_perfect_square() # Passes
-        assert 1 == is_a_perfect_square() # Passes
-        assert 5 == is_a_perfect_square() # Fails
+        assert 4 == is_a_perfect_square()  # passes
+        assert 9 == is_a_perfect_square()  # passes
+        assert 3 == is_a_perfect_square()  # fails
         ```
     """
 
@@ -309,23 +247,16 @@ class is_a_perfect_square(Criteria):
 
 class is_a_power_of(Criteria):
     """
-    Checks if a number is a power of a given base.
+    Match numbers that can be expressed as ``value ** n`` for integer ``n >= 0``.
 
     Args:
-        base: The base to check what the number is a power of
+        value: Base to test powers against.
 
     Example:
         ```python
-
-        assert 4 == is_a_power_of(2) # Passes
-        assert 9 == is_a_power_of(3) # Passes
-        assert 16 == is_a_power_of(2) # Passes
-        assert 10 == is_a_power_of(2) # Fails
-
-
-        assert 16 == is_a_power_of(4) # Passes
-        assert 1 == is_a_power_of(1) # Passes
-        assert 5 == is_a_power_of(2) # Fails
+        assert 16 == is_a_power_of(2) # passes
+        assert 9 == is_a_power_of(3)  # passes
+        assert 10 == is_a_power_of(2) # fails
         ```
     """
 
@@ -343,19 +274,15 @@ class is_a_power_of(Criteria):
 
 class is_prime(Criteria):
     """
-    Checks if a number is prime.
+    Match prime integers.
+
+    Values less than ``2`` are not considered prime.
 
     Example:
         ```python
-
-        assert 5 == is_prime() # Passes
-        assert 2 == is_prime() # Passes
-        assert 9 == is_prime() # Fails
-
-
-        assert 3 == is_prime() # Passes
-        assert 7 == is_prime() # Passes
-        assert 4 == is_prime() # Fails
+        assert 2 == is_prime() # passes
+        assert 5 == is_prime() # passes
+        assert 9 == is_prime() # fails
         ```
     """
 
@@ -370,23 +297,18 @@ class is_prime(Criteria):
 
 class is_coprime_with(Criteria):
     """
-    Checks if a number is co-prime with a base.
-    Two numbers are co-prime if their greatest common divisor is 1.
+    Match numbers that are coprime with ``value``.
+
+    Two numbers are coprime when their greatest common divisor is ``1``.
 
     Args:
-        base: The base to check if the number is co-prime with.
+        value: Number to compare the subject against.
 
     Example:
         ```python
-
-        assert 5 == is_coprime_with(2) # Passes
-        assert 10 == is_coprime_with(9) # Passes
-        assert 9 == is_coprime_with(3) # Fails
-
-
-        assert 10 == is_coprime_with(7) # Passes
-        assert 9 == is_coprime_with(8) # Passes
-        assert 10 == is_coprime_with(5) # Fails
+        assert 10 == is_coprime_with(9) # passes
+        assert 14 == is_coprime_with(15) # passes
+        assert 9 == is_coprime_with(3)  # fails
         ```
     """
 

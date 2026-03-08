@@ -10,17 +10,20 @@ from assertive.core import (
 
 class is_neq(Criteria):
     """
-    Checks subject is not equal to the expected value
+    Match values that are not equal to ``value``.
+
+    This is the inverse of ``is_eq`` and uses normal Python inequality
+    semantics (``subject != value``), so custom ``__eq__`` implementations
+    on your objects are respected.
 
     Args:
-        value: The expected value to compare against
+        value: Value that the subject must not be equal to.
 
     Example:
         ```python
-
-        assert 2 == is_neq(1) # Passes
-        assert 1 == is_neq(1) # Fails
-
+        assert 2 == is_neq(1)        # passes
+        assert "abc" == is_neq("x")  # passes
+        assert 1 == is_neq(1)        # fails
         ```
     """
 
@@ -33,19 +36,16 @@ class is_neq(Criteria):
 
 class is_gt(Criteria):
     """
-    Checks subject is greater than expected value
+    Match values that are strictly greater than ``value``.
 
     Args:
-        value: The expected value to compare against
+        value: Lower bound (exclusive) for the subject.
 
     Example:
         ```python
-
-        assert 2 == is_gt(1) # Passes
-        assert 2 == is_gt(2) # Fails
-
+        assert 10 == is_gt(9)  # passes
+        assert 10 == is_gt(10) # fails
         ```
-
     """
 
     def __init__(self, value):
@@ -57,17 +57,16 @@ class is_gt(Criteria):
 
 class is_gte(Criteria):
     """
-    Checks subject is greater or equal than expected value
+    Match values greater than or equal to ``value``.
 
     Args:
-        value: The expected value to compare against
+        value: Lower bound (inclusive) for the subject.
 
     Example:
         ```python
-
-        assert 2 == is_gte(2) # Passes
-        assert 2 == is_gte(1) # Passes
-        assert 1 == is_gte(2) # Fails
+        assert 2 == is_gte(2) # passes
+        assert 3 == is_gte(2) # passes
+        assert 1 == is_gte(2) # fails
         ```
     """
 
@@ -80,18 +79,16 @@ class is_gte(Criteria):
 
 class is_lt(Criteria):
     """
-    Checks subject is less than expected value
+    Match values that are strictly less than ``value``.
 
     Args:
-        value: The expected value to compare against
+        value: Upper bound (exclusive) for the subject.
 
     Example:
         ```python
-
-        assert 1 == is_lt(2)) # Passes
-        assert 2 == is_lt(2) # Fails
+        assert 1 == is_lt(2) # passes
+        assert 2 == is_lt(2) # fails
         ```
-
     """
 
     def __init__(self, value):
@@ -103,19 +100,17 @@ class is_lt(Criteria):
 
 class is_lte(Criteria):
     """
-    Checks subject is less or equal than expected value
+    Match values less than or equal to ``value``.
 
     Args:
-        value: The expected value to compare against
+        value: Upper bound (inclusive) for the subject.
 
     Example:
         ```python
-
-        assert 1 == is_lte(2) # Passes
-        assert 1 == is_lte(1) # Passes
-        assert 2 == is_lte(1) # Fails
+        assert 1 == is_lte(2) # passes
+        assert 1 == is_lte(1) # passes
+        assert 2 == is_lte(1) # fails
         ```
-
     """
 
     def __init__(self, value):
@@ -127,23 +122,20 @@ class is_lte(Criteria):
 
 class is_between(Criteria):
     """
-    Checks subject is between an upper bound or lower bound.
+    Match values that fall between ``lower`` and ``upper``.
+
+    By default the range is inclusive on both ends. Call ``exclusive()``
+    to require strict inequality at both ends.
 
     Args:
-        lower: The lower bound
-        upper: The upper bound
-
-    Attributes:
-        is_inclusive: If the upper and lower bounds are included in the accepted range
+        lower: Lower bound value.
+        upper: Upper bound value.
 
     Example:
         ```python
-
-        assert 2 == is_between(1, 3) # Passes
-        assert 2 == is_between(1, 2) # Passes
-        assert 2 == is_between(1, 2).inclusive() # Passes
-        assert 2 == is_between(1, 2).exclusive() # Fails
-
+        assert 2 == is_between(1, 3)              # passes
+        assert 2 == is_between(1, 2).inclusive()  # passes
+        assert 2 == is_between(1, 2).exclusive()  # fails
         ```
     """
 
@@ -188,10 +180,12 @@ class is_between(Criteria):
 
 class is_same_instance_as(Criteria):
     """
-    Checks that the subject is the same instance as the expected value
+    Match only when the subject is the exact same object as ``value``.
+
+    This is an identity check (``is``), not an equality check (``==``).
 
     Args:
-        value: The expected value to compare against
+        value: Object instance the subject must be identical to.
 
     Example:
         ```python
@@ -202,9 +196,8 @@ class is_same_instance_as(Criteria):
         y = MyClass()
         z = x
 
-        assert x == is_same_instance_as(z) # Passes
-        assert x == is_same_instance_as(y) # Fails
-
+        assert x == is_same_instance_as(z) # passes
+        assert x == is_same_instance_as(y) # fails
         ```
     """
 
@@ -217,16 +210,19 @@ class is_same_instance_as(Criteria):
 
 class as_string_matches(Criteria):
     """
-    Converts the subject to a string using str() and then checks the criteria
+    Convert the subject to ``str`` and evaluate another criteria against it.
+
+    Useful when the canonical form you care about is textual, for example
+    matching IDs, enum values, or object ``__str__`` output.
 
     Args:
-        criteria: The criteria to compare the str(subject) against
+        criteria: String value or criteria to match against ``str(subject)``.
 
     Example:
         ```python
-
-        assert 1 == as_string_matches("1") # Passes
-
+        assert 1 == as_string_matches("1")              # passes
+        assert 42 == as_string_matches(is_eq("42"))     # passes
+        assert 42 == as_string_matches("0042")          # fails
         ```
     """
 
@@ -239,17 +235,15 @@ class as_string_matches(Criteria):
 
 class is_none(Criteria):
     """
-    Checks the subject is None
+    Match only when the subject is ``None``.
 
     Example:
         ```python
         x = None
         y = 4
 
-
-        assert x == is_none() # Passes
-        assert y == is_none() # Fails
-
+        assert x == is_none() # passes
+        assert y == is_none() # fails
         ```
     """
 
@@ -259,16 +253,15 @@ class is_none(Criteria):
 
 class is_not_none(Criteria):
     """
-    Checks the subject is not None
+    Match values that are not ``None``.
 
     Example:
         ```python
         x = None
         y = 4
 
-        assert x == is_not_none() # Fails
-        assert y == is_not_none() # Passes
-
+        assert x == is_not_none() # fails
+        assert y == is_not_none() # passes
         ```
     """
 

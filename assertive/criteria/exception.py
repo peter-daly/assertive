@@ -8,6 +8,16 @@ from assertive.criteria.utils import ANY
 
 
 class ExceptionCriteria(Criteria):
+    """
+    Base criteria for exception assertions.
+
+    Supports two usage styles:
+    1. Direct matching against an exception instance or callable.
+    2. Context manager (sync or async) around code expected to raise.
+
+    Subclasses provide the actual exception matching rules.
+    """
+
     def __init__(self):
         self.exception = None
         self.raised = False
@@ -58,6 +68,13 @@ class ExceptionCriteria(Criteria):
 
 
 class raises(ExceptionCriteria):
+    """
+    Generic exception matcher driven by a nested criteria.
+
+    Args:
+        criteria: Criteria evaluated against the captured exception instance.
+    """
+
     def __init__(self, criteria: Criteria):
         super().__init__()
         self.criteria = criteria
@@ -70,9 +87,14 @@ class raises(ExceptionCriteria):
 
 class raises_exception(raises):
     """
-    Checks that an exception has been raised that is a subclass and message matches
+    Match raised exceptions by type compatibility and message criteria.
 
-    It can be used as a context manager or an async context manager
+    The exception type check uses ``isinstance`` semantics (subclasses pass).
+    The message check is performed against ``str(exception)`` and can be a
+    plain string or any criteria.
+
+    This criteria can be used directly, as a context manager, or as an async
+    context manager.
 
     Example:
         ```python
@@ -80,19 +102,19 @@ class raises_exception(raises):
             raise SpecificError("Something went wrong")
 
         with raises_exception(Exception):
-            do_something() # Passes
+            do_something() # passes
 
         with raises_exception(Exception, "Something went wrong"):
-            do_something() # Passes
+            do_something() # passes
 
         with raises_exception(SpecificError, "Something went wrong"):
-            do_something() # Passes
+            do_something() # passes
 
         with raises_exception(SpecificError, "Something went very wrong"):
-            do_something() # Fails
+            do_something() # fails
 
         with raises_exception(SpecificError, starts_with("Something went")):
-            do_something() # Passes
+            do_something() # passes
         ```
 
     """
@@ -107,9 +129,13 @@ class raises_exception(raises):
 
 class raises_exact_exception(raises):
     """
-    Strict type on the exception has been raised that has been raised
+    Match raised exceptions by exact type and message criteria.
 
-    It can be used as a context manager or an async context manager
+    Unlike ``raises_exception``, this requires ``exception.__class__ == type``
+    and does not allow subclasses.
+
+    This criteria can be used directly, as a context manager, or as an async
+    context manager.
 
     Example:
         ```python
@@ -117,19 +143,19 @@ class raises_exact_exception(raises):
             raise SpecificError("Something went wrong")
 
         with raises_exact_exception(Exception):
-            do_something() # Fails
+            do_something() # fails
 
         with raises_exact_exception(Exception, "Something went wrong"):
-            do_something() # Fails
+            do_something() # fails
 
         with raises_exact_exception(SpecificError, "Something went wrong"):
-            do_something() # Passes
+            do_something() # passes
 
         with raises_exact_exception(SpecificError, "Something went very wrong"):
-            do_something() # Fails
+            do_something() # fails
 
         with raises_exact_exception(SpecificError, starts_with("Something went")):
-            do_something() # Passes
+            do_something() # passes
         ```
 
     """

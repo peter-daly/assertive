@@ -9,28 +9,29 @@ from assertive.criteria.utils import (
 
 class was_called_with(TimesMixin, Criteria):
     """
-    A criteria that checks if a Mock object was called with specific arguments and keyword arguments.
+    Match ``Mock`` instances with calls that include the given args/kwargs.
+
+    Positional arguments must match exactly in count and order. Keyword
+    arguments are treated as a subset match: expected keys must exist and
+    match, but additional kwargs on the actual call are allowed.
+
+    This criteria works with ``TimesMixin``. By default it expects at least
+    one matching call.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Expected positional arguments (values or criteria).
+        **kwargs: Expected keyword arguments (values or criteria).
 
     Example:
         ```python
-        # Simple usage
         mock = Mock()
         mock(1, 2, a=3, b=4)
 
-
-        assert mock == was_called_with(1, 2, a=3) # Passes
-        assert mock == was_called_with(1, 2, b=4) # Passes
-        assert mock == was_called_with(is_odd(), is_even(), a=3) # Passes
-        assert mock == was_called_with(is_odd(), is_even(), a=3).once() # Passes
-        assert mock == was_called_with(is_odd(), is_even(), a=3).twice() # Fails
-        assert mock == was_called_with(5, 3).never() # Passes
-
+        assert mock == was_called_with(1, 2, a=3)       # passes
+        assert mock == was_called_with(1, 2, b=4)       # passes
+        assert mock == was_called_with(1, 2, a=3).once() # passes
+        assert mock == was_called_with(1, 2, a=3).twice() # fails
         ```
-
     """
 
     def __init__(self, *args, **kwargs):
@@ -72,27 +73,25 @@ class was_called_with(TimesMixin, Criteria):
 
 class was_called_exactly_with(TimesMixin, Criteria):
     """
-    A criteria that checks if a Mock object was called with specific arguments and keyword arguments.
+    Match ``Mock`` calls with strict args and kwargs equality.
+
+    Positional args must match in count and order. Keyword args must match
+    exactly, including key set size (no missing or extra keys).
+
+    This criteria also supports ``TimesMixin`` for call-count assertions.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Expected positional arguments (values or criteria).
+        **kwargs: Exact expected keyword arguments (values or criteria).
 
     Example:
         ```python
-        # Simple usage
         mock = Mock()
         mock(1, 2, a=3, b=4)
 
-
-        assert mock == was_called_exactly_with(1, 2, a=3) # Fails
-        assert mock == was_called_exactly_with(1, 2, a=is_odd(), b=4) # Passes
-        assert mock == was_called_exactly_with(is_odd(), is_even(), a=3).never() # Passes
-        assert mock == was_called_exactly_with(is_odd(), is_even(), a=3, b=4).once() # Passes
-        assert mock == was_called_exactly_with(1, 2).never() # Fails
-
-
-        assert mock = was_called_exactly_with(1, 2, a=3, b=4) # Passes
+        assert mock == was_called_exactly_with(1, 2, a=3, b=4) # passes
+        assert mock == was_called_exactly_with(1, 2, a=3)      # fails
+        assert mock == was_called_exactly_with(1, 2).never()   # passes
         ```
     """
 
@@ -139,25 +138,21 @@ class was_called_exactly_with(TimesMixin, Criteria):
 
 class was_called(TimesMixin, Criteria):
     """
-    A criteria that checks if a mock object was called.
+    Match based on total ``Mock.call_count``.
+
+    Default behavior is "called at least once". Use ``once()``, ``never()``,
+    ``times(n)``, or other ``TimesMixin`` helpers to refine expectations.
 
     Example:
         ```python
-        # Simple usage
         mock = Mock()
         mock(1, 2)
         mock(3, 4)
 
-
-        assert mock == was_called() # Passes
-        assert mock == was_called().once() # Fails
-        assert mock == was_called().never() # Fails
-        assert mock == was_called().twice() # Passes
-        assert mock == was_called().times(3) # Fails
-        assert mock == was_called().at_least_times(1) # Passes
-
-
-        assert mock = was_called() # Passes
+        assert mock == was_called()                 # passes
+        assert mock == was_called().once()          # fails
+        assert mock == was_called().twice()         # passes
+        assert mock == was_called().at_least_times(1) # passes
         ```
     """
 
@@ -170,11 +165,10 @@ class was_called(TimesMixin, Criteria):
 
 class was_called_once(WrappedCriteria):
     """
-    A criteria that checks if a mock object was called once.
+    Convenience wrapper for ``was_called().once()``.
 
     Example:
         ```python
-        # Simple usage
         mock1 = Mock()
         mock1(1, 2)
 
@@ -182,13 +176,8 @@ class was_called_once(WrappedCriteria):
         mock2(1, 2)
         mock2(3, 4)
 
-
-        assert mock1 == was_called_once() # Passes
-        assert mock2 == was_called_once() # Fails
-
-
-        assert mock1 == was_called_once() # Passes
-        assert mock2 == was_called_once() # Fails
+        assert mock1 == was_called_once() # passes
+        assert mock2 == was_called_once() # fails
         ```
     """
 
@@ -198,23 +187,18 @@ class was_called_once(WrappedCriteria):
 
 class was_called_once_with(WrappedCriteria):
     """
-    A criteria that checks if a mock object was called once, with args and kwargs.
+    Convenience wrapper for ``was_called_with(...).once()``.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Expected positional arguments.
+        **kwargs: Expected keyword arguments (subset matching).
 
     Example:
         ```python
-        # Simple usage
         mock = Mock()
         mock(1, 2)
-        mock(3, 4)
-
-
-        assert mock == was_called_once_with(1, 2) # Passes
-        assert mock == was_called_once_with(4, 5) # Fails
-
+        assert mock == was_called_once_with(1, 2) # passes
+        assert mock == was_called_once_with(4, 5) # fails
         ```
     """
 
@@ -224,22 +208,19 @@ class was_called_once_with(WrappedCriteria):
 
 class was_called_once_exactly_with(WrappedCriteria):
     """
-    A criteria that checks if a mock object was called once with strict matching on kwargs
+    Convenience wrapper for ``was_called_exactly_with(...).once()``.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Expected positional arguments.
+        **kwargs: Exact expected keyword arguments.
 
     Example:
         ```python
-        # Simple usage
         mock = Mock()
         mock(1, 2, a=1, b=2)
 
-
-        assert mock == was_called_once_exactly_with(1, 2, a=1, b=2) # Passes
-        assert mock == was_called_once_exactly_with(1, 2, a=1) # Fails
-
+        assert mock == was_called_once_exactly_with(1, 2, a=1, b=2) # passes
+        assert mock == was_called_once_exactly_with(1, 2, a=1)      # fails
         ```
     """
 
@@ -249,20 +230,17 @@ class was_called_once_exactly_with(WrappedCriteria):
 
 class was_not_called(WrappedCriteria):
     """
-    A criteria that checks if a mock object was not called.
+    Convenience wrapper for ``was_called().never()``.
 
     Example:
         ```python
-        # Simple usage
         mock0 = Mock()
 
         mock1 = Mock()
         mock1()
 
-
-        assert mock0 == was_not_called() # Passes
-        assert mock1 == was_not_called() # Fails
-
+        assert mock0 == was_not_called() # passes
+        assert mock1 == was_not_called() # fails
         ```
     """
 
@@ -272,23 +250,19 @@ class was_not_called(WrappedCriteria):
 
 class was_not_called_with(WrappedCriteria):
     """
-    A criteria that checks if a mock object was not called with args and kwargs.
+    Convenience wrapper for ``was_called_with(...).never()``.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Positional arguments that must not be observed.
+        **kwargs: Keyword arguments that must not be observed.
 
     Example:
         ```python
-        # Simple usage
         mock = Mock()
         mock(1, 2)
 
-
-        assert mock == was_not_called_with(3, 4) # Passes
-        assert mock == was_not_called_with(1, 2) # Fails
-        assert mock == was_not_called_with(is_odd(), is_even()) # Passes
-
+        assert mock == was_not_called_with(3, 4) # passes
+        assert mock == was_not_called_with(1, 2) # fails
         ```
     """
 
@@ -298,23 +272,19 @@ class was_not_called_with(WrappedCriteria):
 
 class was_not_called_exactly_with(WrappedCriteria):
     """
-    A criteria that checks if a mock object was not called, with strict matching on kwargs
+    Convenience wrapper for ``was_called_exactly_with(...).never()``.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Positional arguments that must not be observed.
+        **kwargs: Exact keyword argument set that must not be observed.
 
     Example:
         ```python
-        # Simple usage
         mock = Mock()
         mock(1, 2, a=3, b=4)
 
-
-        assert mock == was_not_called_exactly_with(1, 2) # Passes
-        assert mock == was_not_called_exactly_with(1, 2, a=3, b=4) # Fails
-        assert mock == was_not_called_exactly_with(is_odd(), 2, a=3, b=is_even()) # Fails
-
+        assert mock == was_not_called_exactly_with(1, 2)             # passes
+        assert mock == was_not_called_exactly_with(1, 2, a=3, b=4)   # fails
         ```
     """
 
@@ -324,11 +294,24 @@ class was_not_called_exactly_with(WrappedCriteria):
 
 class was_awaited_with(TimesMixin, Criteria):
     """
-    A criteria that checks if an AsyncMock object was awaited with specific arguments and keyword arguments.
+    Async equivalent of ``was_called_with`` for ``AsyncMock`` awaits.
+
+    Positional args are exact by position and count. Keyword args are subset
+    matched (expected keys must exist and match; extras are allowed).
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Expected positional await arguments.
+        **kwargs: Expected keyword await arguments.
+
+    Example:
+        ```python
+        mock = AsyncMock()
+        await mock(1, x=2, y=3)
+
+        assert mock == was_awaited_with(1, x=2)      # passes
+        assert mock == was_awaited_with(1, x=2).once() # passes
+        assert mock == was_awaited_with(1, x=9)      # fails
+        ```
     """
 
     def __init__(self, *args, **kwargs):
@@ -368,11 +351,13 @@ class was_awaited_with(TimesMixin, Criteria):
 
 class was_awaited_exactly_with(TimesMixin, Criteria):
     """
-    A criteria that checks if an AsyncMock object was awaited with specific arguments and keyword arguments.
+    Async equivalent of ``was_called_exactly_with`` for ``AsyncMock`` awaits.
+
+    Keyword args are strict: expected and actual key sets must match exactly.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Expected positional await arguments.
+        **kwargs: Exact expected keyword await arguments.
     """
 
     def __init__(self, *args, **kwargs):
@@ -415,7 +400,10 @@ class was_awaited_exactly_with(TimesMixin, Criteria):
 
 class was_awaited(TimesMixin, Criteria):
     """
-    A criteria that checks if an AsyncMock object was awaited.
+    Match based on total ``AsyncMock.await_count``.
+
+    Default behavior is "awaited at least once". Use ``TimesMixin`` methods
+    to express exact or minimum await counts.
     """
 
     def __init__(self):
@@ -427,7 +415,7 @@ class was_awaited(TimesMixin, Criteria):
 
 class was_awaited_once(WrappedCriteria):
     """
-    A criteria that checks if an AsyncMock object was awaited once.
+    Convenience wrapper for ``was_awaited().once()``.
     """
 
     def __init__(self):
@@ -436,11 +424,11 @@ class was_awaited_once(WrappedCriteria):
 
 class was_awaited_once_with(WrappedCriteria):
     """
-    A criteria that checks if an AsyncMock object was awaited once, with args and kwargs.
+    Convenience wrapper for ``was_awaited_with(...).once()``.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Expected positional await arguments.
+        **kwargs: Expected keyword await arguments (subset matching).
     """
 
     def __init__(self, *args, **kwargs):
@@ -449,11 +437,11 @@ class was_awaited_once_with(WrappedCriteria):
 
 class was_awaited_once_exactly_with(WrappedCriteria):
     """
-    A criteria that checks if an AsyncMock object was awaited once with strict matching on kwargs.
+    Convenience wrapper for ``was_awaited_exactly_with(...).once()``.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Expected positional await arguments.
+        **kwargs: Exact expected keyword await arguments.
     """
 
     def __init__(self, *args, **kwargs):
@@ -462,7 +450,7 @@ class was_awaited_once_exactly_with(WrappedCriteria):
 
 class was_not_awaited(WrappedCriteria):
     """
-    A criteria that checks if an AsyncMock object was not awaited.
+    Convenience wrapper for ``was_awaited().never()``.
     """
 
     def __init__(self):
@@ -471,11 +459,11 @@ class was_not_awaited(WrappedCriteria):
 
 class was_not_awaited_with(WrappedCriteria):
     """
-    A criteria that checks if an AsyncMock object was not awaited with args and kwargs.
+    Convenience wrapper for ``was_awaited_with(...).never()``.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Positional await arguments that must not occur.
+        **kwargs: Keyword await arguments that must not occur.
     """
 
     def __init__(self, *args, **kwargs):
@@ -484,11 +472,11 @@ class was_not_awaited_with(WrappedCriteria):
 
 class was_not_awaited_exactly_with(WrappedCriteria):
     """
-    A criteria that checks if an AsyncMock object was not awaited, with strict matching on kwargs.
+    Convenience wrapper for ``was_awaited_exactly_with(...).never()``.
 
     Args:
-        *args: The expected positional arguments.
-        **kwargs: The expected keyword arguments.
+        *args: Positional await arguments that must not occur.
+        **kwargs: Exact keyword await arguments that must not occur.
     """
 
     def __init__(self, *args, **kwargs):

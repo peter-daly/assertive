@@ -6,7 +6,12 @@ from .basic import is_gte
 
 
 class AnyCriteria(Criteria):
-    """Represents a criteria that matches any subject."""
+    """
+    Criteria that always matches.
+
+    This is useful as a wildcard when you only care about selected fields
+    and want the rest to pass unconditionally.
+    """
 
     def _match(self, subject) -> bool:
         return True
@@ -19,6 +24,14 @@ ANY = AnyCriteria()
 
 
 class PredicateCriteria(Criteria):
+    """
+    Wrap an arbitrary predicate function as a criteria.
+
+    Args:
+        predicate: Callable that returns ``True`` when the subject matches.
+        description: Human-readable label describing the predicate.
+    """
+
     def __init__(self, predicate: Callable[[Any], bool], description: str):
         self.predicate = predicate
         self._description = description
@@ -28,6 +41,13 @@ class PredicateCriteria(Criteria):
 
 
 class WrappedCriteria(Criteria):
+    """
+    Delegate matching behavior to another criteria instance.
+
+    This is commonly used for creating named convenience criteria from
+    composed expressions.
+    """
+
     def __init__(self, inner_criteria: Criteria):
         self.inner_criteria = inner_criteria
 

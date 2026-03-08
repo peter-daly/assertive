@@ -6,11 +6,13 @@ from assertive.criteria.utils import (
 
 class has_attributes(Criteria):
     """
-    A criteria that checks if an object has the specified attributes.
+    Match objects that expose given attributes with matching values.
+
+    Each provided attribute value is converted with ``ensure_criteria``,
+    so you can mix direct values and nested criteria.
 
     Args:
-        **attributes: Keyword arguments representing the attributes to check. The key is the attribute name
-            and the value is the criteria to apply to the attribute value.
+        **attributes: Attribute names and expected value criteria.
 
     Example:
         ```python
@@ -19,13 +21,9 @@ class has_attributes(Criteria):
             name: str
             age: int
 
-
-        assert Person(name="Alice", age=30) == has_attributes(name="Alice", age=30) # Passes
-        assert Person(name="Alice", age=30) == has_attributes(name="Alice") # Passes
-        assert Person(name="Alice", age=30) == has_attributes(name="Bob") # Fails
-
-
-        assert Person(name="Bob", age=30) == has_attributes(name="Bob", age=30) # Passes
+        assert Person(name="Alice", age=30) == has_attributes(name="Alice", age=30) # passes
+        assert Person(name="Alice", age=30) == has_attributes(name="Alice")          # passes
+        assert Person(name="Alice", age=30) == has_attributes(name="Bob")            # fails
         ```
     """
 
@@ -45,10 +43,12 @@ class has_attributes(Criteria):
 
 class is_type(Criteria):
     """
-    A criteria that checks if the subject is an instance of a specific type.
+    Match objects that are instances of ``expected``.
+
+    This uses ``isinstance`` and therefore accepts subclasses.
 
     Args:
-        expected (type): The expected type.
+        expected: Required base type.
 
     Example:
         ```python
@@ -61,13 +61,9 @@ class is_type(Criteria):
         class Employee(Person):
             job: str
 
-
-        assert Employee(name="Alice", age=30, job="Engineer") == is_type(Person) # Passes
-        assert Employee(name="Alice", age=30, job="Engineer") == is_type(Employee) # Passes
-        assert Person(name="Alice", age=30) == is_type(Employee) # Fails
-
-
-        assert Person(name="Bob", age=30) == is_type(Person) # Passes
+        assert Employee(name="Alice", age=30, job="Engineer") == is_type(Person)   # passes
+        assert Employee(name="Alice", age=30, job="Engineer") == is_type(Employee) # passes
+        assert Person(name="Alice", age=30) == is_type(Employee)                    # fails
         ```
     """
 
@@ -80,10 +76,12 @@ class is_type(Criteria):
 
 class is_exact_type(Criteria):
     """
-    A criteria that checks if the subject is of the exact specified type.
+    Match objects whose concrete class is exactly ``expected``.
+
+    Unlike ``is_type``, subclasses do not match.
 
     Args:
-        expected (type): The expected type of the subject.
+        expected: Exact class required.
 
     Example:
         ```python
@@ -96,13 +94,9 @@ class is_exact_type(Criteria):
         class Employee(Person):
             job: str
 
-
-        assert Employee(name="Alice", age=30, job="Engineer") == is_exact_type(Person) # Fails
-        assert Employee(name="Alice", age=30, job="Engineer") == is_exact_type(Employee) # Passes
-        assert Person(name="Alice", age=30) == is_exact_type(Employee) # Fails
-
-
-        assert Person(name="Bob", age=30) == is_exact_type(Person) # Passes
+        assert Employee(name="Alice", age=30, job="Engineer") == is_exact_type(Person)   # fails
+        assert Employee(name="Alice", age=30, job="Engineer") == is_exact_type(Employee) # passes
+        assert Person(name="Alice", age=30) == is_exact_type(Employee)                     # fails
         ```
     """
 
@@ -115,11 +109,13 @@ class is_exact_type(Criteria):
 
 class class_match(WrappedCriteria):
     """
-    Represents a criteria that matches objects of a specific class with specified attributes.
+    Match objects by class compatibility plus attribute rules.
+
+    Internally this composes ``is_type(cls) & has_attributes(**attributes)``.
 
     Args:
-        cls (type): The class to match.
-        **attributes: The attributes to match on the class.
+        cls: Type that the subject must be an instance of.
+        **attributes: Attribute expectations evaluated with nested criteria.
 
     Example:
         ```python
@@ -132,14 +128,9 @@ class class_match(WrappedCriteria):
         class Employee(Person):
             job: str
 
-
-        assert Employee(name="Alice", age=30, job="Engineer") == class_match(Person, name="Alice") # Passes
-        assert Employee(name="Alice", age=30, job="Engineer") == class_match(Employee, job="Engineer") # Passes
-        assert Person(name="Alice", age=30) == class_match(Person, age=40) # Fails
-
-
-        assert Person(name="Bob", age=30) == class_match(Employee, name="bob") # Fails
-        assert Person(name="Bob", age=30) == class_match(Person, name="bob") # Passes
+        assert Employee(name="Alice", age=30, job="Engineer") == class_match(Person, name="Alice")   # passes
+        assert Employee(name="Alice", age=30, job="Engineer") == class_match(Employee, job="Engineer") # passes
+        assert Person(name="Alice", age=30) == class_match(Person, age=40)                             # fails
         ```
     """
 
@@ -149,12 +140,14 @@ class class_match(WrappedCriteria):
 
 class strict_class_match(WrappedCriteria):
     """
-    A criteria that checks if an object is an exact instance of a given class
-    and has the specified attributes.
+    Match objects by exact class plus attribute rules.
+
+    Internally this composes ``is_exact_type(cls) & has_attributes(**attributes)``.
+    Use this when subclass instances should not match.
 
     Args:
-        cls (type): The class to match against.
-        **attributes: The attributes to check for.
+        cls: Exact class required for the subject.
+        **attributes: Attribute expectations evaluated with nested criteria.
 
     Example:
         ```python
@@ -167,14 +160,9 @@ class strict_class_match(WrappedCriteria):
         class Employee(Person):
             job: str
 
-
-        assert Employee(name="Alice", age=30, job="Engineer") == strict_class_match(Person, name="Alice") # Fails
-        assert Employee(name="Alice", age=30, job="Engineer") == strict_class_match(Employee, job="Engineer") # Passes
-        assert Person(name="Alice", age=30) == strict_class_match(Person, age=40) # Fails
-
-
-        assert Employee(name="Bob", age=30, job="Developer") == strict_class_match(Person, name="bob") # Fails
-        assert Person(name="Bob", age=30) == strict_class_match(Person, name="bob") # Passes
+        assert Employee(name="Alice", age=30, job="Engineer") == strict_class_match(Person, name="Alice")   # fails
+        assert Employee(name="Alice", age=30, job="Engineer") == strict_class_match(Employee, job="Engineer") # passes
+        assert Person(name="Alice", age=30) == strict_class_match(Person, age=40)                             # fails
         ```
     """
 

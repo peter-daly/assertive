@@ -5,6 +5,12 @@ from assertive.core import Criteria, ensure_criteria
 
 
 class MappingCriteria(Criteria):
+    """
+    Base class for criteria that operate on mapping-like subjects.
+
+    Subclasses require the subject to implement ``collections.abc.Mapping``.
+    """
+
     def _before_run(self, subject):
         if not isinstance(subject, Mapping):
             raise TypeError(f"{subject} needs to be mapping")
@@ -12,21 +18,20 @@ class MappingCriteria(Criteria):
 
 class has_key_values(MappingCriteria):
     """
-    Checks if the subject has the specified attributes, and if those attributes match the provided criteria.
+    Match mappings that contain at least the provided keys and value rules.
+
+    Extra keys on the subject are allowed. Each expected value can be either
+    a plain value or another criteria object.
 
     Args:
-        key_values: A dictionary of key value pairs to match against the subject.
+        key_values: Mapping of expected keys to expected value criteria.
 
     Example:
         ```python
-
-        assert {"a": 1, "b": 2} == has_key_values({"a": 1}) # Passes
-        assert {"a": 1, "b": 2} == has_key_values({"a": is_odd()}) # Passes
-
-
-        assert {"a": 1, "b": 2} == has_key_values({"a": 1}) # Passes
+        assert {"a": 1, "b": 2} == has_key_values({"a": 1})       # passes
+        assert {"a": 1, "b": 2} == has_key_values({"a": is_odd()}) # passes
+        assert {"a": 1} == has_key_values({"b": 1})               # fails
         ```
-
     """
 
     def __init__(self, key_values: Mapping):
@@ -46,22 +51,18 @@ class has_key_values(MappingCriteria):
 
 class has_key_and_value(has_key_values):
     """
-    Checks if a Mapping has an single key and value
+    Convenience wrapper for checking one key/value pair in a mapping.
 
     Args:
-        key: The key to match against the subject.
-        value: The value to match against the subject.
+        key: Expected key.
+        value: Expected value or criteria for that key.
 
     Example:
         ```python
-
-        assert {"a": 1, "b": 2} == has_key_and_value("a", 1) # Passes
-        assert {"a": 1, "b": 2} == has_key_and_value("a", is_odd()) # Passes
-
-
-        assert {"a": 1, "b": 2} == has_key_and_value("a", 1) # Passes
+        assert {"a": 1, "b": 2} == has_key_and_value("a", 1)        # passes
+        assert {"a": 1, "b": 2} == has_key_and_value("a", is_odd()) # passes
+        assert {"a": 2} == has_key_and_value("a", is_odd())         # fails
         ```
-
     """
 
     def __init__(self, key: Any, value: Any):
@@ -70,19 +71,19 @@ class has_key_and_value(has_key_values):
 
 class has_exact_key_values(has_key_values):
     """
-    Checks if the subject has the specified attributes, and if those attributes match the provided criteria.
+    Match mappings whose keys and values exactly match ``key_values``.
+
+    Unlike ``has_key_values``, this criteria fails when the subject has
+    missing or additional keys.
 
     Args:
-        key_values: A dictionary of key value pairs to match against the subject.
+        key_values: Complete set of keys and value criteria expected.
 
     Example:
         ```python
-
-        assert {"a": 1, "b": 2} == has_exact_key_values({"a": 1, "b": 2}) # Passes
-        assert {"a": 1, "b": 2} == has_exact_key_values({"a": is_odd()}) # Fails
-
-
-        assert {"a": 1, "b": 2} == has_exact_key_values({"a": is_odd(), "b": is_even()}) # Passes
+        assert {"a": 1, "b": 2} == has_exact_key_values({"a": 1, "b": 2}) # passes
+        assert {"a": 1, "b": 2} == has_exact_key_values({"a": 1})         # fails
+        assert {"a": 1, "b": 2} == has_exact_key_values({"a": is_odd(), "b": is_even()}) # passes
         ```
     """
 
@@ -98,19 +99,18 @@ class has_exact_key_values(has_key_values):
 
 class contains_keys(MappingCriteria):
     """
-    Determines if the given subject contains keys.
+    Match mappings that include all requested keys.
+
+    Keys themselves can be values or criteria objects.
 
     Args:
-        key: A list of keys to match against the subject.
+        *keys: Required keys or key criteria.
 
     Example:
         ```python
-
-        assert {"a": 1, "b": 2} == contains_keys("a", "b") # Passes
-        assert {"a": 1, "b": 2} == contains_keys("c") # Fails
-
-
-        assert {"a": 1, "b": 2} == contains_keys("a") # Passes
+        assert {"a": 1, "b": 2} == contains_keys("a", "b")    # passes
+        assert {"a": 1, "b": 2} == contains_keys(starts_with("a")) # passes
+        assert {"a": 1, "b": 2} == contains_keys("c")         # fails
         ```
     """
 
@@ -127,21 +127,17 @@ class contains_keys(MappingCriteria):
 
 class contains_exact_keys(contains_keys):
     """
-    Determines if the given subject contains the exact keys.
+    Match mappings whose key set exactly matches the requested keys.
 
     Args:
-        key: A list of keys to match against the subject.
+        *keys: Expected full key set.
 
     Example:
         ```python
-
-        assert {"a": 1, "b": 2} == contains_exact_keys("a", "b") # Passes
-        assert {"a": 1, "b": 2} == contains_exact_keys("a") # Fails
-
-
-        assert {"a": 1, "b": 2} == contains_exact_keys("a", "b") # Passes
+        assert {"a": 1, "b": 2} == contains_exact_keys("a", "b") # passes
+        assert {"a": 1, "b": 2} == contains_exact_keys("a")      # fails
+        assert {"a": 1, "b": 2} == contains_exact_keys("a", "b", "c") # fails
         ```
-
     """
 
     def _match(self, subject: Mapping):

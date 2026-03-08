@@ -4,6 +4,13 @@ from assertive.core import Criteria, ensure_criteria
 
 
 class IterableCriteria(Criteria):
+    """
+    Base class for criteria that operate on iterable-like subjects.
+
+    Subclasses require the subject to expose ``__len__``. A ``TypeError``
+    is raised when that contract is not met.
+    """
+
     def _before_run(self, subject):
         if not hasattr(subject, "__len__"):
             raise TypeError(f"{subject} needs to be an Iterable")
@@ -11,17 +18,19 @@ class IterableCriteria(Criteria):
 
 class has_length(IterableCriteria):
     """
-    Checks if the subject has a length that matches the count_criteria.
+    Match subjects whose length satisfies ``value``.
+
+    ``value`` can be a concrete integer or another criteria for advanced
+    length checks.
 
     Args:
-        count_criteria: The criteria to match the length against, can be a number or a criteria object
+        value: Expected length or criteria evaluated against ``len(subject)``.
 
     Example:
         ```python
-
-        assert [1, 2, 3] == has_length(3) # Passes
-        assert "hello" == has_length(5) # Passes
-        assert [1, 2, 3] == has_length(is_greater_than(2)) # Passes
+        assert [1, 2, 3] == has_length(3)      # passes
+        assert "hello" == has_length(5)        # passes
+        assert [1, 2, 3] == has_length(is_gt(2)) # passes
         ```
     """
 
@@ -35,14 +44,13 @@ class has_length(IterableCriteria):
 
 class is_empty(IterableCriteria):
     """
-    Checks if the subject is empty.
+    Match empty iterables (length ``0``).
 
     Example:
         ```python
-
-        assert [] == is_empty() # Passes
-
-        assert [] == is_empty() # Passes
+        assert [] == is_empty()       # passes
+        assert "" == is_empty()       # passes
+        assert [1] == is_empty()      # fails
         ```
     """
 
@@ -53,21 +61,20 @@ class is_empty(IterableCriteria):
 
 class contains(IterableCriteria):
     """
-    Checks if the subject contains all the specified items or matches the criteria.
+    Match when each expected item is found somewhere in the subject.
+
+    Items are treated as criteria. This means you can mix exact values
+    and nested criteria objects.
 
     Args:
-        *items: The items to check if the subject contains or matches the criteria
+        *items: Expected values/criteria that must each match at least one element.
 
     Example:
         ```python
-
-        assert [1, 2, 3] == contains(1, 2) # Passes
-        assert [1, 2, 3] == contains(1, 2, 3) # Passes
-        assert [1, 2, 3] == contains(1, 2, is_greater_than(1)) # Passes
-
-        assert [1, 2, 3] == contains(1, 2) # Passes
+        assert [1, 2, 3] == contains(1, 2)          # passes
+        assert [1, 2, 3] == contains(is_gt(2), 1)   # passes
+        assert [1, 2, 3] == contains(4)             # fails
         ```
-
     """
 
     @classmethod
@@ -88,21 +95,19 @@ class contains(IterableCriteria):
 
 class contains_exactly(IterableCriteria):
     """
-    Checks if the subject contains all the specified items or matches the criteria.
+    Match when the subject has exactly the expected items in the same order.
+
+    Each expected entry can be either a plain value or a criteria object.
 
     Args:
-        *items: The items to check if the subject contains or matches the criteria
+        *items: Ordered expected values/criteria.
 
     Example:
         ```python
-
-        assert [1, 2, 3] == contains_exactly(1, 2) # Fails
-        assert [1, 2, 3] == contains_exactly(1, 2, 3) # Passes
-        assert [1, 2, 3] == contains_exactly(1, 2, is_greater_than(1)) # Passes
-
-        assert [1, 2, 3] == contains_exactly(1, 2, 3) # Passes
+        assert [1, 2, 3] == contains_exactly(1, 2, 3)        # passes
+        assert [1, 2, 3] == contains_exactly(1, 2, is_gt(2)) # passes
+        assert [1, 2, 3] == contains_exactly(1, 3, 2)        # fails
         ```
-
     """
 
     @classmethod

@@ -7,6 +7,13 @@ import json
 
 
 class StringCriteria(Criteria):
+    """
+    Base class for criteria that operate on string subjects.
+
+    Subclasses inherit a pre-check that raises ``TypeError`` when the
+    tested subject is not a string.
+    """
+
     def _before_run(self, subject):
         if not isinstance(subject, str):
             raise TypeError(f"{subject} needs to be a string")
@@ -14,18 +21,19 @@ class StringCriteria(Criteria):
 
 class regex(StringCriteria):
     """
-    Represents a regular expression pattern matching criteria for strings.
+    Match strings using a regular expression pattern.
+
+    Matching uses ``re.match``, so the pattern is applied from the start
+    of the string.
 
     Args:
-        pattern (str): The regular expression pattern to match.
+        pattern: Regular expression pattern.
 
     Example:
         ```python
-
-        assert "abc" == regex(r"abc") # Passes
-        assert "abc" == regex(r"abc|def") # Passes
-        assert "abc" == regex(r"def") # Fails
-
+        assert "abc" == regex(r"abc")      # passes
+        assert "abc" == regex(r"abc|def")  # passes
+        assert "abc" == regex(r"def")      # fails
         ```
     """
 
@@ -38,22 +46,16 @@ class regex(StringCriteria):
 
 class starts_with(StringCriteria):
     """
-    A criteria class that checks if a string starts with a given prefix.
+    Match strings that start with ``prefix``.
 
     Args:
-        prefix (str): The prefix to check for.
+        prefix: Required prefix.
 
     Example:
         ```python
-
-        assert "abc" == starts_with("a") # Passes
-        assert "abc" == starts_with("ab") # Passes
-        assert "abc" == starts_with("abb") # Fails
-
-
-        assert "abc" == starts_with("a") # Passes
-        assert "abc" == starts_with("ab") # Passes
-        assert "abc" == starts_with("ba") # Fails
+        assert "abc" == starts_with("a")   # passes
+        assert "abc" == starts_with("ab")  # passes
+        assert "abc" == starts_with("ba")  # fails
         ```
     """
 
@@ -66,16 +68,16 @@ class starts_with(StringCriteria):
 
 class ends_with(StringCriteria):
     """
-    A criteria class that checks if a string ends with a specified suffix.
+    Match strings that end with ``suffix``.
 
     Args:
-        suffix (str): The suffix to check.
+        suffix: Required suffix.
 
     Example:
         ```python
-        assert "abc" == ends_with("c") # Passes
-        assert "abc" == ends_with("bc") # Passes
-        assert "abc" == ends_with("ac") # Fails
+        assert "abc" == ends_with("c")  # passes
+        assert "abc" == ends_with("bc") # passes
+        assert "abc" == ends_with("ac") # fails
         ```
     """
 
@@ -88,16 +90,19 @@ class ends_with(StringCriteria):
 
 class contains_substring(TimesMixin, StringCriteria):
     """
-    A criteria that checks if a string contains a specific substring.
+    Match strings by counting occurrences of a substring.
+
+    This criteria integrates with ``TimesMixin``. By default it expects
+    at least one occurrence, and you can refine that with ``once()``,
+    ``twice()``, ``times(n)``, or any numeric criteria.
 
     Args:
-        substring (str): The substring to search for.
+        substring: Substring to count within the subject.
 
     Example:
         ```python
-        assert "hello" == contains_substring("ell") # Passes
-        assert "hello" == contains_substring("hell") # Passes
-        assert "hello" == contains_substring("goodbye") # Fails
+        assert "banana" == contains_substring("an").twice() # passes
+        assert "banana" == contains_substring("na").once()  # fails
         ```
     """
 
@@ -111,16 +116,16 @@ class contains_substring(TimesMixin, StringCriteria):
 
 class ignore_case(StringCriteria):
     """
-    A criteria that checks if a string matches another string in a case-insensitive manner.
+    Match strings case-insensitively against ``value``.
 
     Args:
-        other (str): The string to compare against.
+        value: Expected string, ignoring case.
 
     Example:
         ```python
-        assert "abc" == case_insensitive("ABC") # Passes
-        assert "abc" == case_insensitive("aBc") # Passes
-        assert "abc" == case_insensitive("def") # Fails
+        assert "abc" == ignore_case("ABC") # passes
+        assert "abc" == ignore_case("aBc") # passes
+        assert "abc" == ignore_case("def") # fails
         ```
     """
 
@@ -133,13 +138,16 @@ class ignore_case(StringCriteria):
 
 class as_json_matches(StringCriteria):
     """
-    Converts the subject to a JSON object and then checks the criteria.
+    Parse the subject as JSON and match the parsed value with nested criteria.
+
     Args:
-        criteria: The criteria to compare the JSON object against.
+        inner_criteria: Value or criteria applied to ``json.loads(subject)``.
+
     Example:
         ```python
-        assert '{"key": "value"}' == as_json_matches({"key": "value"}) # Passes
-        assert '{"key": "value"}' == as_json_matches({"key": "other_value"}) # Fails
+        assert '{"key": "value"}' == as_json_matches({"key": "value"}) # passes
+        assert '{"n": 5}' == as_json_matches({"n": is_gt(0)})          # passes
+        assert '{"key": "value"}' == as_json_matches({"key": "x"})     # fails
         ```
     """
 
