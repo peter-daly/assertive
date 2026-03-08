@@ -1,9 +1,14 @@
-# from __future__ import annotations
-from unittest.mock import Mock
+import asyncio
+from unittest.mock import AsyncMock, Mock
 
-from assertive.criteria import was_called, was_called_with
+from assertive.criteria import was_awaited, was_called, was_called_with
 from assertive.criteria.basic import is_eq, is_gt, is_lt
 from assertive.criteria.mock import (
+    was_awaited_with,
+    was_awaited_once_exactly_with,
+    was_awaited_once_with,
+    was_not_awaited,
+    was_not_awaited_with,
     was_called_once_exactly_with,
     was_called_once_with,
     was_not_called_with,
@@ -55,3 +60,30 @@ def test_mock_does_not_match_passes():
     assert mock1 != was_called_with(1, 2).twice()
     assert mock1 != was_called_with(3, 4).twice()
     assert mock1 != was_called().once()
+
+
+async def _run_async_mock(mock):
+    await mock(1, 2)
+    await mock(1, 2, x=3)
+    await mock(1, 2, x=4)
+
+
+def test_async_mock_matches_passes():
+    mock = AsyncMock()
+    asyncio.run(_run_async_mock(mock))
+
+    assert mock == was_awaited().times(3)
+    assert mock == was_awaited_with(1, 2).times(3)
+    assert mock == was_awaited_once_with(1, 2, x=3)
+    assert mock == was_awaited_once_exactly_with(1, 2, x=4)
+    assert mock == was_not_awaited_with(9, 9)
+    assert mock == was_not_awaited_with(1, 2, x=5)
+
+
+def test_async_mock_does_not_match_passes():
+    mock = AsyncMock()
+    unawaited_call = mock(1, 2)
+    unawaited_call.close()
+
+    assert mock == was_not_awaited()
+    assert mock != was_awaited()

@@ -25,20 +25,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Configure Poetry
+      - name: Install dependencies with uv
         run: |
-          poetry config virtualenvs.create false
-
-      - name: Install dependencies with Poetry
-        run: |
-          poetry install --with dev
+          uv sync --group dev
 
       - name: Build docs site
-        run: poetry run mkdocs build
+        run: uv run mkdocs build
 
       - name: Upload site to artifacts
         uses: actions/upload-pages-artifact@v3

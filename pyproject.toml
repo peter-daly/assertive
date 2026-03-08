@@ -1,55 +1,59 @@
-[tool.poetry]
+[project]
 name = "assertive"
 version = "1.2.0"
 description = "A small assertion library for testing"
-authors = ["Peter Daly"]
-license = "MIT"
-homepage = "https://github.com/peter-daly/assertive"
-repository = "https://github.com/peter-daly/assertive"
-documentation = "https://peter-daly.github.io/assertive/"
+authors = [{ name = "Peter Daly" }]
+requires-python = ">=3.10"
 readme = "README.md"
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
+license = "MIT"
+classifiers = ["Development Status :: 5 - Production/Stable"]
+dependencies = ["bidict>=0.23.1,<0.24"]
+
+[project.urls]
+Homepage = "https://github.com/peter-daly/assertive"
+Repository = "https://github.com/peter-daly/assertive"
+Documentation = "https://peter-daly.github.io/assertive/"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0,<8",
+    "pytest-cov>=4.0.0,<5",
+    "pytest-asyncio>=0.21.1,<0.22",
+    "wily>=1.24.0,<2",
+    "ty>=0.0.1,<1",
+    "ruff>=0.5.4,<0.6",
+    "mkdocs>=1.6.1,<2",
+    "mkdocstrings>=0.29.1,<0.30",
+    "mkdocs-material>=9.6.12,<10",
+    "mkdocstrings-python>=1.16.10,<2",
+    "mkdocs-gen-files>=0.5.0,<0.6",
+    "mkdocs-literate-nav>=0.6.2,<0.7",
+    "mkdocs-section-index>=0.3.10,<0.4",
 ]
-packages = [
-    { include = "assertive" },
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "assertive",
+    "CHANGES.rst",
 ]
-include = ["CHANGES.rst"]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-bidict = "^0.23.1"
+[tool.hatch.build.targets.wheel]
+include = [
+    "assertive",
+    "CHANGES.rst",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.0.0"
-pytest-cov = "^4.0.0"
-pytest-asyncio = "^0.21.1"
-wily = "^1.24.0"
-pyright = "^1.1.372"
-ruff = "^0.5.4"
-mkdocs = "^1.6.1"
-mkdocstrings = "^0.29.1"
-mkdocs-material = "^9.6.12"
-mkdocstrings-python = "^1.16.10"
-mkdocs-gen-files = "^0.5.0"
-mkdocs-literate-nav = "^0.6.2"
-mkdocs-section-index = "^0.3.10"
-
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.coverage.paths]
 source = ["assertive"]
 tests = ["tests"]
 
-[tool.black]
-
-[tool.isort]
-profile = "black"
-
-
 [tool.coverage.run]
 branch = true
 source = ["assertive", "tests"]
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.ty.src]
+exclude = ["docs/"]

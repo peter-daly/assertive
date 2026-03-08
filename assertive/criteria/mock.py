@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 from assertive.core import Criteria, ensure_criteria
 from assertive.criteria.utils import (
@@ -320,3 +320,176 @@ class was_not_called_exactly_with(WrappedCriteria):
 
     def __init__(self, *args, **kwargs):
         super().__init__(was_called_exactly_with(*args, **kwargs).never())
+
+
+class was_awaited_with(TimesMixin, Criteria):
+    """
+    A criteria that checks if an AsyncMock object was awaited with specific arguments and keyword arguments.
+
+    Args:
+        *args: The expected positional arguments.
+        **kwargs: The expected keyword arguments.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.expected_args = tuple(ensure_criteria(arg) for arg in args)
+        self.expected_kwargs = {
+            key: ensure_criteria(value) for key, value in kwargs.items()
+        }
+
+    def _get_matching_calls(self, mock_obj: AsyncMock):
+        return [
+            call_args
+            for call_args in mock_obj.await_args_list
+            if self._match_single_call(call_args)
+        ]
+
+    def _match(self, subject):
+        matching_calls = self._get_matching_calls(subject)
+        return self.times_criteria.run_match(len(matching_calls))
+
+    def _match_single_call(self, call_args):
+        actual_args, actual_kwargs = call_args
+
+        if len(actual_args) != len(self.expected_args):
+            return False
+
+        for actual, expected in zip(actual_args, self.expected_args):
+            if not expected.run_match(actual):
+                return False
+
+        for key, expected in self.expected_kwargs.items():
+            if key not in actual_kwargs or not expected.run_match(actual_kwargs[key]):
+                return False
+
+        return True
+
+
+class was_awaited_exactly_with(TimesMixin, Criteria):
+    """
+    A criteria that checks if an AsyncMock object was awaited with specific arguments and keyword arguments.
+
+    Args:
+        *args: The expected positional arguments.
+        **kwargs: The expected keyword arguments.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.expected_args = tuple(ensure_criteria(arg) for arg in args)
+        self.expected_kwargs = {
+            key: ensure_criteria(value) for key, value in kwargs.items()
+        }
+
+    def _get_matching_calls(self, mock_obj: AsyncMock):
+        return [
+            call_args
+            for call_args in mock_obj.await_args_list
+            if self._match_single_call(call_args)
+        ]
+
+    def _match(self, subject):
+        matching_calls = self._get_matching_calls(subject)
+        return self.times_criteria.run_match(len(matching_calls))
+
+    def _match_single_call(self, call_args):
+        actual_args, actual_kwargs = call_args
+
+        if len(actual_args) != len(self.expected_args):
+            return False
+
+        for actual, expected in zip(actual_args, self.expected_args):
+            if not expected.run_match(actual):
+                return False
+
+        if len(self.expected_kwargs) != len(actual_kwargs):
+            return False
+
+        for key, expected in self.expected_kwargs.items():
+            if key not in actual_kwargs or not expected.run_match(actual_kwargs[key]):
+                return False
+
+        return True
+
+
+class was_awaited(TimesMixin, Criteria):
+    """
+    A criteria that checks if an AsyncMock object was awaited.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def _match(self, subject: AsyncMock):
+        return self.times_criteria.run_match(subject.await_count)
+
+
+class was_awaited_once(WrappedCriteria):
+    """
+    A criteria that checks if an AsyncMock object was awaited once.
+    """
+
+    def __init__(self):
+        super().__init__(was_awaited().once())
+
+
+class was_awaited_once_with(WrappedCriteria):
+    """
+    A criteria that checks if an AsyncMock object was awaited once, with args and kwargs.
+
+    Args:
+        *args: The expected positional arguments.
+        **kwargs: The expected keyword arguments.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(was_awaited_with(*args, **kwargs).once())
+
+
+class was_awaited_once_exactly_with(WrappedCriteria):
+    """
+    A criteria that checks if an AsyncMock object was awaited once with strict matching on kwargs.
+
+    Args:
+        *args: The expected positional arguments.
+        **kwargs: The expected keyword arguments.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(was_awaited_exactly_with(*args, **kwargs).once())
+
+
+class was_not_awaited(WrappedCriteria):
+    """
+    A criteria that checks if an AsyncMock object was not awaited.
+    """
+
+    def __init__(self):
+        super().__init__(was_awaited().never())
+
+
+class was_not_awaited_with(WrappedCriteria):
+    """
+    A criteria that checks if an AsyncMock object was not awaited with args and kwargs.
+
+    Args:
+        *args: The expected positional arguments.
+        **kwargs: The expected keyword arguments.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(was_awaited_with(*args, **kwargs).never())
+
+
+class was_not_awaited_exactly_with(WrappedCriteria):
+    """
+    A criteria that checks if an AsyncMock object was not awaited, with strict matching on kwargs.
+
+    Args:
+        *args: The expected positional arguments.
+        **kwargs: The expected keyword arguments.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(was_awaited_exactly_with(*args, **kwargs).never())

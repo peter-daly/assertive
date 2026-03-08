@@ -8,6 +8,34 @@ from assertive.serialize import deserialize, serialize
 import json
 
 
+def test_non_criteria_serialization():
+    """
+    Test the serialization of non-criteria items
+    """
+    d = {"key": "value"}
+    s = "string"
+    i = 42
+    f = 3.14
+    assert serialize(d) == d
+    assert serialize(s) == s
+    assert serialize(i) == i
+    assert serialize(f) == f
+
+
+def test_non_criteria_deserialization():
+    """
+    Test the deserialization of non-criteria items
+    """
+    d = {"key": "value"}
+    s = "string"
+    i = 42
+    f = 3.14
+    assert deserialize(d) == d
+    assert deserialize(s) == s
+    assert deserialize(i) == i
+    assert deserialize(f) == f
+
+
 def test_basic_serialize():
     """
     Test the serialization of basic criteria
@@ -17,7 +45,7 @@ def test_basic_serialize():
 
 def test_complex_serialize():
     """
-    Test the serialization of basic criteria
+    Test the serialization of complex criteria
     """
 
     criteria = is_gt(1) & is_lt(10)

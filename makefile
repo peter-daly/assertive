@@ -2,19 +2,19 @@
 
 typecheck:
 	@echo "Typechecking"
-	@poetry run pyright .
+	@uv run ty check .
 
 lint:
 	@echo "Linting with Ruff..."
-	@poetry run ruff check .
+	@uv run ruff check .
 
 format:
 	@echo "Formatting with Ruff..."
-	@poetry run ruff format .
+	@uv run ruff format .
 
 test:
 	@echo "Running tests..."
-	@poetry run pytest .
+	@uv run pytest .
 
 ci: lint format typecheck test
 

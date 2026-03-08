@@ -61,7 +61,7 @@ def serialize(item: Any) -> Any:
     Serializes a criteria object or any other item into a dictionary representation.
     """
     if isinstance(item, Criteria) and type(item) in SERIALIZABLE_CRITERIA.inverse:
-        serial_key = SERIALIZABLE_CRITERIA.inverse[type(item)]  # type: ignore
+        serial_key = SERIALIZABLE_CRITERIA.inverse[type(item)]  # pyright: ignore[reportArgumentType]
         serialized_dict = item.to_serialized()
         serialized_dict = {k: serialize(v) for k, v in serialized_dict.items()}
         return {serial_key: serialized_dict}
