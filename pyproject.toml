@@ -18,18 +18,12 @@ Documentation = "https://peter-daly.github.io/assertive/"
 dev = [
     "pre-commit>=4.0.0,<5",
     "pytest>=7.0.0,<8",
-    "pytest-cov>=4.0.0,<5",
-    "pytest-asyncio>=0.21.1,<0.22",
-    "wily>=1.24.0,<2",
     "ty>=0.0.1,<1",
     "ruff>=0.5.4,<0.6",
     "mkdocs>=1.6.1,<2",
     "mkdocstrings>=0.29.1,<0.30",
     "mkdocs-material>=9.6.12,<10",
     "mkdocstrings-python>=1.16.10,<2",
-    "mkdocs-gen-files>=0.5.0,<0.6",
-    "mkdocs-literate-nav>=0.6.2,<0.7",
-    "mkdocs-section-index>=0.3.10,<0.4",
 ]
 
 [tool.hatch.build.targets.sdist]
