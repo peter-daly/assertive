@@ -1,4 +1,4 @@
-.PHONY: lint format test ci
+.PHONY: lint format test ci precommit-install precommit-run
 
 typecheck:
 	@echo "Typechecking"
@@ -17,6 +17,14 @@ test:
 	@uv run pytest .
 
 ci: lint format typecheck test
+
+precommit-install:
+	@echo "Installing pre-commit hooks..."
+	@uv run pre-commit install
+
+precommit-run:
+	@echo "Running pre-commit..."
+	@uv run pre-commit run --all-files
 
 publish:
 	@echo "Publishing to PyPI..."
