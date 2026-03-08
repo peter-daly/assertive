@@ -41,5 +41,5 @@ assert 5 == ~is_even()  # NOT
 
 ## Next steps
 
-- Browse built-in criteria: [Criteria reference](criteria/)
-- Build your own criteria: [Writing custom criteria](criteria/writing-custom-criteria/)
+- Browse criteria concepts: [Criteria overview](criteria/index.md)
+- Build your own criteria: [Writing custom criteria](criteria/writing-custom-criteria.md)

@@ -1,6 +1,6 @@
 site_name: Assertive
 site_description: Declarative assertion criteria for Python tests
-site_url: https://example.com/
+site_url: https://peter-daly.github.io/assertive/
 
 repo_name: peter-daly/assertive
 repo_url: https://github.com/peter-daly/assertive
@@ -12,6 +12,7 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Criteria:
+      - Overview: criteria/index.md
       - What Is Criteria?: criteria/what-is-criteria.md
       - Built-in Criteria: criteria/built-ins.md
       - Composition: criteria/composition.md
