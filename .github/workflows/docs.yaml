@@ -36,7 +36,7 @@ jobs:
         run: uv run mkdocs build
 
       - name: Upload site to artifacts
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           # Upload site folder
           path: "./site"
