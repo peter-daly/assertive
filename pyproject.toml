@@ -17,7 +17,7 @@ Documentation = "https://peter-daly.github.io/assertive/"
 [dependency-groups]
 dev = [
     "pre-commit>=4.0.0,<5",
-    "pytest>=7.0.0,<8",
+    "pytest>=7.0.0,<10",
     "ty>=0.0.1,<1",
     "ruff>=0.5.4,<0.6",
     "mkdocs>=1.6.1,<2",
