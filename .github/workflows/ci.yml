@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
@@ -52,7 +52,7 @@ jobs:
       latest_tag: ${{ steps.compare.outputs.latest_tag }}
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
